@@ -10,6 +10,7 @@ import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 
 @Data
 @Entity
@@ -35,7 +36,7 @@ public class Task {
         this.assignee = assignee;
         this.status = status;
         this.type = type;
-        this.createdAt = now;
-        this.updatedAt = now;
+        this.createdAt = now.truncatedTo(ChronoUnit.MINUTES);
+        this.updatedAt = now.truncatedTo(ChronoUnit.MINUTES);
     }
 }

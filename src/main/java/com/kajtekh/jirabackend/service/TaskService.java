@@ -7,6 +7,7 @@ import com.kajtekh.jirabackend.repository.TaskRepository;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 
 @Service
@@ -31,7 +32,7 @@ public class TaskService {
                 taskRequest.name(),
                 taskRequest.description(),
                 taskRequest.assignee(),
-                taskRequest.status(),
+                Status.TO_DO,
                 taskRequest.type(),
                 LocalDateTime.now()
         );
@@ -42,12 +43,16 @@ public class TaskService {
     public Task moveTask(Long id, Status status) {
         final var task = taskRepository.findById(id).orElseThrow();
         task.setStatus(status);
-        task.setUpdatedAt(LocalDateTime.now());
+        task.setUpdatedAt(LocalDateTime.now().truncatedTo(ChronoUnit.MINUTES));
         taskRepository.save(task);
         return task;
     }
 
     public void deleteTask(Long id) {
         taskRepository.deleteById(id);
+    }
+
+    public List<Task> getTasksByStatus(Status status) {
+        return taskRepository.findByStatus(status);
     }
 }

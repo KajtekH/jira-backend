@@ -36,6 +36,11 @@ public class TaskController {
         return taskService.getAllTasks();
     }
 
+    @GetMapping("/{status}")
+    public List<Task> getTasksByStatus(@PathVariable Status status) {
+        return taskService.getTasksByStatus(status);
+    }
+
     @PostMapping()
     public ResponseEntity<Task> addTask(@RequestBody TaskRequest taskRequest) {
         final var task = taskService.addTask(taskRequest);
