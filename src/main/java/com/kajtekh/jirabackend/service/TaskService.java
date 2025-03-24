@@ -1,8 +1,9 @@
 package com.kajtekh.jirabackend.service;
 
-import com.kajtekh.jirabackend.model.task.Status;
+import com.kajtekh.jirabackend.model.task.dto.TaskResponse;
+import com.kajtekh.jirabackend.model.task.TaskStatus;
 import com.kajtekh.jirabackend.model.task.Task;
-import com.kajtekh.jirabackend.model.task.TaskRequest;
+import com.kajtekh.jirabackend.model.task.dto.TaskRequest;
 import com.kajtekh.jirabackend.repository.TaskRepository;
 import org.springframework.stereotype.Service;
 
@@ -19,30 +20,22 @@ public class TaskService {
         this.taskRepository = taskRepository;
     }
 
-    public List<Task> getAllTasks() {
-        return taskRepository.findAll();
-    }
-
-    public List<Task> getTaskByStatus(Status status) {
-        return taskRepository.findByStatus(status);
+    public List<TaskResponse> getAllTasks() {
+        return taskRepository.findAll().stream().map(TaskResponse::fromTask).toList();
     }
 
     public Task addTask(TaskRequest taskRequest) {
-        final var task = new Task(
-                taskRequest.name(),
-                taskRequest.description(),
-                taskRequest.assignee(),
-                Status.TO_DO,
-                taskRequest.type(),
-                LocalDateTime.now()
-        );
-        taskRepository.save(task);
-        return task;
+        final var task = new Task();
+        task.setName(taskRequest.name());
+        task.setTaskStatus(TaskStatus.TO_DO);
+        task.setCreatedAt(LocalDateTime.now().truncatedTo(ChronoUnit.MINUTES));
+        task.setUpdatedAt(LocalDateTime.now().truncatedTo(ChronoUnit.MINUTES));
+        return taskRepository.save(task);
     }
 
-    public Task moveTask(Long id, Status status) {
+    public Task moveTask(Long id, TaskStatus taskStatus) {
         final var task = taskRepository.findById(id).orElseThrow();
-        task.setStatus(status);
+        task.setTaskStatus(taskStatus);
         task.setUpdatedAt(LocalDateTime.now().truncatedTo(ChronoUnit.MINUTES));
         taskRepository.save(task);
         return task;
@@ -52,7 +45,7 @@ public class TaskService {
         taskRepository.deleteById(id);
     }
 
-    public List<Task> getTasksByStatus(Status status) {
-        return taskRepository.findByStatus(status);
+    public List<TaskResponse> getTasksByStatus(TaskStatus taskStatus) {
+        return taskRepository.findByTaskStatus(taskStatus).stream().map(TaskResponse::fromTask).toList();
     }
 }

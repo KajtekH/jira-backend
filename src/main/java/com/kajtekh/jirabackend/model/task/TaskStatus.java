@@ -1,6 +1,6 @@
 package com.kajtekh.jirabackend.model.task;
 
-public enum Status {
+public enum TaskStatus {
     TO_DO,
     IN_PROGRESS,
     TESTING,

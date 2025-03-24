@@ -1,7 +1,8 @@
-package com.kajtekh.jirabackend.model.task;
+package com.kajtekh.jirabackend.model.product;
 
-import com.kajtekh.jirabackend.model.issue.Issue;
+import com.kajtekh.jirabackend.model.request.Request;
 import com.kajtekh.jirabackend.model.user.User;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
@@ -9,20 +10,24 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDateTime;
-import java.time.temporal.ChronoUnit;
+import java.time.LocalDate;
+import java.util.Collections;
+import java.util.List;
 
-@Data
 @Entity
-@AllArgsConstructor
+@Table(name = "products")
+@Data
+@Builder
 @NoArgsConstructor
-@Table(name = "tasks")
-public class Task {
+@AllArgsConstructor
+public class Product {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -30,16 +35,13 @@ public class Task {
 
     private String name;
     private String description;
-    private TaskStatus taskStatus;
-    private Type type;
-    private LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
+    private String version;
+    private LocalDate releaseDate;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    private Issue issue;
+    @JoinColumn(name = "owner_id")
+    private User owner;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "assignee_id")
-    private User assignee;
-
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Request> requests = Collections.emptyList();
 }
