@@ -1,10 +1,14 @@
 package com.kajtekh.jirabackend.service;
 
+import com.kajtekh.jirabackend.model.issue.Issue;
 import com.kajtekh.jirabackend.model.task.dto.TaskResponse;
 import com.kajtekh.jirabackend.model.task.TaskStatus;
 import com.kajtekh.jirabackend.model.task.Task;
 import com.kajtekh.jirabackend.model.task.dto.TaskRequest;
+import com.kajtekh.jirabackend.model.user.User;
+import com.kajtekh.jirabackend.repository.IssueRepository;
 import com.kajtekh.jirabackend.repository.TaskRepository;
+import com.kajtekh.jirabackend.repository.UserRepository;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -24,10 +28,14 @@ public class TaskService {
         return taskRepository.findAll().stream().map(TaskResponse::fromTask).toList();
     }
 
-    public Task addTask(TaskRequest taskRequest) {
+    public Task addTask(TaskRequest taskRequest, Issue issue, User assignee) {
         final var task = new Task();
         task.setName(taskRequest.name());
         task.setTaskStatus(TaskStatus.TO_DO);
+        task.setDescription(taskRequest.description());
+        task.setType(taskRequest.type());
+        task.setAssignee(assignee);
+        task.setIssue(issue);
         task.setCreatedAt(LocalDateTime.now().truncatedTo(ChronoUnit.MINUTES));
         task.setUpdatedAt(LocalDateTime.now().truncatedTo(ChronoUnit.MINUTES));
         return taskRepository.save(task);
@@ -47,5 +55,16 @@ public class TaskService {
 
     public List<TaskResponse> getTasksByStatus(TaskStatus taskStatus) {
         return taskRepository.findByTaskStatus(taskStatus).stream().map(TaskResponse::fromTask).toList();
+    }
+
+    public Task updateTask(Long id, TaskRequest taskRequest, User assignee) {
+        final var task = taskRepository.findById(id).orElseThrow();
+        task.setName(taskRequest.name());
+        task.setDescription(taskRequest.description());
+        task.setType(taskRequest.type());
+        task.setAssignee(assignee);
+        task.setUpdatedAt(LocalDateTime.now().truncatedTo(ChronoUnit.MINUTES));
+        taskRepository.save(task);
+        return task;
     }
 }

@@ -1,5 +1,6 @@
 package com.kajtekh.jirabackend.model.user;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.kajtekh.jirabackend.model.issue.Issue;
 import com.kajtekh.jirabackend.model.product.Product;
 import com.kajtekh.jirabackend.model.request.Request;
@@ -45,15 +46,19 @@ public class User implements UserDetails {
     @Column(nullable = false, unique = true)
     private String email;
 
+    @JsonIgnore
     @OneToMany(mappedBy = "owner", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Product> products = Collections.emptyList();
 
+    @JsonIgnore
     @OneToMany(mappedBy = "productManager", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Issue> issues = Collections.emptyList();
 
+    @JsonIgnore
     @OneToMany(mappedBy = "AccountManager", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Request> requests = Collections.emptyList();
 
+    @JsonIgnore
     @OneToMany(mappedBy = "assignee", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Task> tasks = Collections.emptyList();
 
