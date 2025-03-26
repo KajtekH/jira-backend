@@ -41,9 +41,9 @@ public class TaskController {
         return taskService.getAllTasks();
     }
 
-    @GetMapping("/{taskStatus}")
-    public List<TaskResponse> getTasksByStatus(@PathVariable TaskStatus taskStatus) {
-        return taskService.getTasksByStatus(taskStatus);
+    @GetMapping("/{issueId}/{taskStatus}")
+    public List<TaskResponse> getTasksByStatus(@PathVariable TaskStatus taskStatus, @PathVariable Long issueId) {
+        return taskService.getTasksByStatus(taskStatus, issueId);
     }
 
     @PostMapping("/{issueId}")

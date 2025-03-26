@@ -3,6 +3,7 @@ package com.kajtekh.jirabackend.service;
 import com.kajtekh.jirabackend.model.Status;
 import com.kajtekh.jirabackend.model.issue.Issue;
 import com.kajtekh.jirabackend.model.issue.dto.IssueRequest;
+import com.kajtekh.jirabackend.model.issue.dto.IssueResponse;
 import com.kajtekh.jirabackend.model.user.User;
 import com.kajtekh.jirabackend.repository.IssueRepository;
 import com.kajtekh.jirabackend.repository.UserRepository;
@@ -11,6 +12,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
+import java.util.List;
 
 import static com.kajtekh.jirabackend.model.Status.OPEN;
 
@@ -38,4 +40,7 @@ public class IssueService {
         return issueRepository.findById(id).orElse(null);
     }
 
+    public List<IssueResponse> getAllIssues() {
+        return issueRepository.findAll().stream().map(IssueResponse::fromIssue).toList();
+    }
 }

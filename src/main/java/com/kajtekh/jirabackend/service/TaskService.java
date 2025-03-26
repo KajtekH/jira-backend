@@ -53,8 +53,8 @@ public class TaskService {
         taskRepository.deleteById(id);
     }
 
-    public List<TaskResponse> getTasksByStatus(TaskStatus taskStatus) {
-        return taskRepository.findByTaskStatus(taskStatus).stream().map(TaskResponse::fromTask).toList();
+    public List<TaskResponse> getTasksByStatus(TaskStatus taskStatus, Long issueId) {
+        return taskRepository.findAllByTaskStatusAndIssueId(taskStatus, issueId).stream().map(TaskResponse::fromTask).toList();
     }
 
     public Task updateTask(Long id, TaskRequest taskRequest, User assignee) {
