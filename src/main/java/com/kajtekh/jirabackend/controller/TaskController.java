@@ -22,6 +22,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
+import static com.kajtekh.jirabackend.model.task.dto.TaskResponse.fromTask;
+
 @RestController
 @RequestMapping("/api/tasks")
 public class TaskController {
@@ -50,20 +52,20 @@ public class TaskController {
     public ResponseEntity<TaskResponse> addTask(@PathVariable Long issueId, @RequestBody TaskRequest taskRequest) {
         final var issue = issueService.getIssueById(issueId);
         final var assignee = userService.getUserByUsername(taskRequest.assignee());
-        final var taskResponse = TaskResponse.fromTask(taskService.addTask(taskRequest, issue, assignee));
+        final var taskResponse = fromTask(taskService.addTask(taskRequest, issue, assignee));
         return ResponseEntity.ok(taskResponse);
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<TaskResponse> updateTask(@PathVariable Long id, @RequestBody TaskRequest taskRequest) {
         final var assignee = userService.getUserByUsername(taskRequest.assignee());
-        final var taskResponse = TaskResponse.fromTask(taskService.updateTask(id, taskRequest, assignee));
+        final var taskResponse = fromTask(taskService.updateTask(id, taskRequest, assignee));
         return ResponseEntity.ok(taskResponse);
     }
 
     @PatchMapping()
     public ResponseEntity<TaskResponse> moveTask(@RequestBody MoveTaskRequest moveTaskRequest) {
-        final var taskResponse = TaskResponse.fromTask(taskService.moveTask(moveTaskRequest.taskId(), moveTaskRequest.taskStatus()));
+        final var taskResponse = fromTask(taskService.moveTask(moveTaskRequest.taskId(), moveTaskRequest.taskStatus()));
         return ResponseEntity.ok(taskResponse);
     }
 

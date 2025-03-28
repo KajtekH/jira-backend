@@ -37,6 +37,7 @@ public class Request {
     private String name;
     private String description;
     private Status status;
+    private RequestType type;
 
     @OneToMany(mappedBy = "request", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<Issue> issues = Collections.emptyList();

@@ -6,14 +6,12 @@ import com.kajtekh.jirabackend.model.issue.dto.IssueRequest;
 import com.kajtekh.jirabackend.model.issue.dto.IssueResponse;
 import com.kajtekh.jirabackend.model.user.User;
 import com.kajtekh.jirabackend.repository.IssueRepository;
-import com.kajtekh.jirabackend.repository.UserRepository;
 import org.springframework.stereotype.Service;
-
 import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.temporal.ChronoUnit;
 import java.util.List;
 
+import static com.kajtekh.jirabackend.model.Status.ABANDONED;
+import static com.kajtekh.jirabackend.model.Status.CLOSED;
 import static com.kajtekh.jirabackend.model.Status.OPEN;
 
 @Service
@@ -41,6 +39,21 @@ public class IssueService {
     }
 
     public List<IssueResponse> getAllIssues() {
-        return issueRepository.findAll().stream().map(IssueResponse::fromIssue).toList();
+        return issueRepository.findAll().stream()
+                .sorted((issue1, issue2) -> {
+                    List<Status> order = List.of(OPEN, CLOSED, ABANDONED);
+                    return Integer.compare(order.indexOf(issue1.getStatus()), order.indexOf(issue2.getStatus()));
+                })
+                .map(IssueResponse::fromIssue)
+                .toList();
+    }
+
+    public Issue updateStatus(Long id, Status status) {
+        final var issue = issueRepository.findById(id).orElseThrow();
+        issue.setStatus(status);
+        if (status.equals(CLOSED)) {
+            issue.setCloseDate(LocalDate.now());
+        }
+        return issueRepository.save(issue);
     }
 }
