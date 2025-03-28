@@ -6,9 +6,7 @@ import com.kajtekh.jirabackend.model.task.TaskStatus;
 import com.kajtekh.jirabackend.model.task.Task;
 import com.kajtekh.jirabackend.model.task.dto.TaskRequest;
 import com.kajtekh.jirabackend.model.user.User;
-import com.kajtekh.jirabackend.repository.IssueRepository;
 import com.kajtekh.jirabackend.repository.TaskRepository;
-import com.kajtekh.jirabackend.repository.UserRepository;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -33,7 +31,7 @@ public class TaskService {
         task.setName(taskRequest.name());
         task.setTaskStatus(TaskStatus.TO_DO);
         task.setDescription(taskRequest.description());
-        task.setType(taskRequest.type());
+        task.setTaskType(taskRequest.taskType());
         task.setAssignee(assignee);
         task.setIssue(issue);
         task.setCreatedAt(LocalDateTime.now().truncatedTo(ChronoUnit.MINUTES));
@@ -61,7 +59,7 @@ public class TaskService {
         final var task = taskRepository.findById(id).orElseThrow();
         task.setName(taskRequest.name());
         task.setDescription(taskRequest.description());
-        task.setType(taskRequest.type());
+        task.setTaskType(taskRequest.taskType());
         task.setAssignee(assignee);
         task.setUpdatedAt(LocalDateTime.now().truncatedTo(ChronoUnit.MINUTES));
         taskRepository.save(task);

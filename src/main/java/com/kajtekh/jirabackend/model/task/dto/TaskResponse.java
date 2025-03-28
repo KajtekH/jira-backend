@@ -9,7 +9,7 @@ public record TaskResponse(Long id, String name, String description, String assi
                 task.getName(),
                 task.getDescription(),
                 task.getAssignee().getUsername(),
-                task.getType().name(),
+                task.getTaskType().name(),
                 task.getTaskStatus().name(),
                 task.getCreatedAt().toString(),
                 task.getUpdatedAt().toString()

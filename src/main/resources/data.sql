@@ -21,12 +21,12 @@ VALUES
     ('Product2', 'Description2', '1.0', CURRENT_DATE, 2);
 
 -- Insert requests
-INSERT INTO requests (name, description, status, product_id, account_manager_id)
+INSERT INTO requests (name, description, status, product_id, account_manager_id, request_type)
 VALUES
-    ('Request1', 'Description1', 0, 1, 3),
-    ('Request2', 'Description2', 0, 1, 4),
-    ('Request3', 'Description3', 0, 2, 3),
-    ('Request4', 'Description4', 0, 2, 4);
+    ('Request1', 'Description1', 0, 1, 3,1),
+    ('Request2', 'Description2', 0, 1, 4,0),
+    ('Request3', 'Description3', 0, 2, 3,2),
+    ('Request4', 'Description4', 0, 2, 4,1);
 
 -- Insert issues
 INSERT INTO issues (name, description, open_date, status, request_id, product_manager_id)
@@ -40,7 +40,7 @@ VALUES
     ('Issue7', 'Description7', CURRENT_DATE, 0, 4, 1),
     ('Issue8', 'Description8', CURRENT_DATE, 0, 4, 2);
 
-INSERT INTO tasks (name, description, task_status, issue_id, assignee_id, created_at, updated_at, type)
+INSERT INTO tasks (name, description, task_status, issue_id, assignee_id, created_at, updated_at, task_type)
 VALUES
     ('Task1', 'Description1', 0, 1, 3, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP,0),
     ('Task2', 'Description2', 1, 1, 4, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP,1),

@@ -4,6 +4,7 @@ import com.kajtekh.jirabackend.model.Status;
 import com.kajtekh.jirabackend.model.issue.Issue;
 import com.kajtekh.jirabackend.model.issue.dto.IssueRequest;
 import com.kajtekh.jirabackend.model.issue.dto.IssueResponse;
+import com.kajtekh.jirabackend.model.request.Request;
 import com.kajtekh.jirabackend.model.user.User;
 import com.kajtekh.jirabackend.repository.IssueRepository;
 import org.springframework.stereotype.Service;
@@ -24,13 +25,14 @@ public class IssueService {
         this.issueRepository = issueRepository;
     }
 
-    public Issue addIssue(IssueRequest issueRequest, User productManager) {
+    public Issue addIssue(IssueRequest issueRequest, User productManager, Request request) {
         final var issue = new Issue();
         issue.setName(issueRequest.name());
         issue.setDescription(issueRequest.description());
         issue.setOpenDate(LocalDate.now());
         issue.setStatus(OPEN);
         issue.setProductManager(productManager);
+        issue.setRequest(request);
         return issueRepository.save(issue);
     }
 
@@ -38,8 +40,8 @@ public class IssueService {
         return issueRepository.findById(id).orElse(null);
     }
 
-    public List<IssueResponse> getAllIssues() {
-        return issueRepository.findAll().stream()
+    public List<IssueResponse> getAllIssues(Long id) {
+        return issueRepository.findAllByRequestId(id).stream()
                 .sorted((issue1, issue2) -> {
                     List<Status> order = List.of(OPEN, CLOSED, ABANDONED);
                     return Integer.compare(order.indexOf(issue1.getStatus()), order.indexOf(issue2.getStatus()));

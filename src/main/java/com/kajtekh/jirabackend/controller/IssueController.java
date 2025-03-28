@@ -4,6 +4,7 @@ import com.kajtekh.jirabackend.model.Status;
 import com.kajtekh.jirabackend.model.issue.dto.IssueRequest;
 import com.kajtekh.jirabackend.model.issue.dto.IssueResponse;
 import com.kajtekh.jirabackend.service.IssueService;
+import com.kajtekh.jirabackend.service.RequestService;
 import com.kajtekh.jirabackend.service.UserService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -24,18 +25,20 @@ public class IssueController {
 
     private final IssueService issueService;
     private final UserService userService;
+    private final RequestService requestService;
 
-    public IssueController(IssueService issueService, UserService userService) {
+    public IssueController(IssueService issueService, UserService userService, RequestService requestService) {
         this.issueService = issueService;
         this.userService = userService;
-    }
-
-    @GetMapping
-    public ResponseEntity<List<IssueResponse>> getAllIssues() {
-        return ResponseEntity.ok(issueService.getAllIssues());
+        this.requestService = requestService;
     }
 
     @GetMapping("/{id}")
+    public ResponseEntity<List<IssueResponse>> getAllIssues(@PathVariable Long id) {
+        return ResponseEntity.ok(issueService.getAllIssues(id));
+    }
+
+    @GetMapping("issue/{id}")
     public ResponseEntity<IssueResponse> getIssueById(@PathVariable Long id) {
         final var issueResponse = fromIssue(issueService.getIssueById(id));
         return ResponseEntity.ok(issueResponse);
@@ -48,10 +51,11 @@ public class IssueController {
         return ResponseEntity.ok(issueResponse);
     }
 
-    @PostMapping
-    public ResponseEntity<IssueResponse> addIssue(@RequestBody IssueRequest issueRequest) {
+    @PostMapping("/{requestId}")
+    public ResponseEntity<IssueResponse> addIssue(@RequestBody IssueRequest issueRequest, @PathVariable Long requestId) {
         final var productManager = userService.getUserByUsername(issueRequest.productManager());
-        final var issueResponse = fromIssue(issueService.addIssue(issueRequest, productManager));
+        final var request = requestService.getRequestById(requestId);
+        final var issueResponse = fromIssue(issueService.addIssue(issueRequest, productManager, request));
         return ResponseEntity.ok(issueResponse);
     }
 
