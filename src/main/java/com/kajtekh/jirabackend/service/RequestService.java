@@ -1,6 +1,7 @@
 package com.kajtekh.jirabackend.service;
 
 import com.kajtekh.jirabackend.model.Status;
+import com.kajtekh.jirabackend.model.product.Product;
 import com.kajtekh.jirabackend.model.request.Request;
 import com.kajtekh.jirabackend.model.request.dto.RequestRequest;
 import com.kajtekh.jirabackend.model.user.User;
@@ -22,8 +23,8 @@ public class RequestService {
     }
 
 
-    public List<Request> getAllRequests() {
-        return requestRepository.findAll().stream()
+    public List<Request> getAllRequests(Long productId) {
+        return requestRepository.findAllByProductId(productId).stream()
                 .sorted((request1, request2) -> {
             List<Status> order = List.of(OPEN, CLOSED, ABANDONED);
             return Integer.compare(order.indexOf(request1.getStatus()), order.indexOf(request2.getStatus()));
@@ -34,13 +35,14 @@ public class RequestService {
         return requestRepository.findById(id).orElse(null);
     }
 
-    public Request addRequest(RequestRequest requestRequest, User accountManager) {
+    public Request addRequest(RequestRequest requestRequest, User accountManager, Product product) {
         final var request = new Request();
         request.setName(requestRequest.name());
         request.setDescription(requestRequest.description());
         request.setRequestType(requestRequest.requestType());
         request.setAccountManager(accountManager);
         request.setStatus(OPEN);
+        request.setProduct(product);
         return requestRepository.save(request);
     }
 

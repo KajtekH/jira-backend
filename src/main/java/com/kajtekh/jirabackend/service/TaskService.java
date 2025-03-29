@@ -13,6 +13,10 @@ import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 
+import static com.kajtekh.jirabackend.model.task.TaskStatus.TO_DO;
+import static java.time.LocalDateTime.now;
+import static java.time.temporal.ChronoUnit.MINUTES;
+
 @Service
 public class TaskService {
 
@@ -29,20 +33,20 @@ public class TaskService {
     public Task addTask(TaskRequest taskRequest, Issue issue, User assignee) {
         final var task = new Task();
         task.setName(taskRequest.name());
-        task.setTaskStatus(TaskStatus.TO_DO);
+        task.setTaskStatus(TO_DO);
         task.setDescription(taskRequest.description());
         task.setTaskType(taskRequest.taskType());
         task.setAssignee(assignee);
         task.setIssue(issue);
-        task.setCreatedAt(LocalDateTime.now().truncatedTo(ChronoUnit.MINUTES));
-        task.setUpdatedAt(LocalDateTime.now().truncatedTo(ChronoUnit.MINUTES));
+        task.setCreatedAt(now().truncatedTo(MINUTES));
+        task.setUpdatedAt(now().truncatedTo(MINUTES));
         return taskRepository.save(task);
     }
 
     public Task moveTask(Long id, TaskStatus taskStatus) {
         final var task = taskRepository.findById(id).orElseThrow();
         task.setTaskStatus(taskStatus);
-        task.setUpdatedAt(LocalDateTime.now().truncatedTo(ChronoUnit.MINUTES));
+        task.setUpdatedAt(now().truncatedTo(MINUTES));
         taskRepository.save(task);
         return task;
     }
@@ -61,7 +65,7 @@ public class TaskService {
         task.setDescription(taskRequest.description());
         task.setTaskType(taskRequest.taskType());
         task.setAssignee(assignee);
-        task.setUpdatedAt(LocalDateTime.now().truncatedTo(ChronoUnit.MINUTES));
+        task.setUpdatedAt(now().truncatedTo(MINUTES));
         taskRepository.save(task);
         return task;
     }

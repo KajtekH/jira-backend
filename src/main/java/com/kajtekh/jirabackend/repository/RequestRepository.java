@@ -10,4 +10,5 @@ import java.util.List;
 @Repository
 public interface RequestRepository extends JpaRepository<Request, Long> {
     List<Request> findByStatus(Status status);
+    List<Request> findAllByProductId(Long productId);
 }

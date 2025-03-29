@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 
 import static com.kajtekh.jirabackend.model.issue.dto.IssueResponse.fromIssue;
+import static org.springframework.http.HttpStatus.CREATED;
 
 @RestController
 @RequestMapping("/api/issues")
@@ -56,7 +57,7 @@ public class IssueController {
         final var productManager = userService.getUserByUsername(issueRequest.productManager());
         final var request = requestService.getRequestById(requestId);
         final var issueResponse = fromIssue(issueService.addIssue(issueRequest, productManager, request));
-        return ResponseEntity.ok(issueResponse);
+        return ResponseEntity.status(CREATED).body(issueResponse);
     }
 
 

@@ -23,6 +23,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 
 import static com.kajtekh.jirabackend.model.task.dto.TaskResponse.fromTask;
+import static org.springframework.http.HttpStatus.CREATED;
 
 @RestController
 @RequestMapping("/api/tasks")
@@ -53,7 +54,7 @@ public class TaskController {
         final var issue = issueService.getIssueById(issueId);
         final var assignee = userService.getUserByUsername(taskRequest.assignee());
         final var taskResponse = fromTask(taskService.addTask(taskRequest, issue, assignee));
-        return ResponseEntity.ok(taskResponse);
+        return ResponseEntity.status(CREATED).body(taskResponse);
     }
 
     @PutMapping("/{id}")
