@@ -7,6 +7,7 @@ import com.kajtekh.jirabackend.model.task.Task;
 import com.kajtekh.jirabackend.model.task.dto.TaskRequest;
 import com.kajtekh.jirabackend.model.user.User;
 import com.kajtekh.jirabackend.repository.TaskRepository;
+import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -22,14 +23,17 @@ public class TaskService {
 
     private final TaskRepository taskRepository;
 
+
     public TaskService(TaskRepository taskRepository) {
         this.taskRepository = taskRepository;
     }
 
+    @Transactional
     public List<TaskResponse> getAllTasks() {
         return taskRepository.findAll().stream().map(TaskResponse::fromTask).toList();
     }
 
+    @Transactional
     public Task addTask(TaskRequest taskRequest, Issue issue, User assignee) {
         final var task = new Task();
         task.setName(taskRequest.name());
