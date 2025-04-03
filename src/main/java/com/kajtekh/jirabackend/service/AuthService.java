@@ -3,6 +3,7 @@ package com.kajtekh.jirabackend.service;
 import com.kajtekh.jirabackend.model.auth.AuthenticationRequest;
 import com.kajtekh.jirabackend.model.auth.AuthenticationResponse;
 import com.kajtekh.jirabackend.model.auth.RegisterRequest;
+import com.kajtekh.jirabackend.model.auth.TokenResponse;
 import com.kajtekh.jirabackend.model.user.Role;
 import com.kajtekh.jirabackend.model.user.User;
 import com.kajtekh.jirabackend.repository.UserRepository;
@@ -57,5 +58,9 @@ public class AuthService {
         var user = repository.findByUsernameOrEmail(request.email()).orElseThrow();
         var jwtToken = jwtService.generateToken(user);
         return new AuthenticationResponse(jwtToken);
+    }
+
+    public TokenResponse getTokenPayload(String token) {
+        return jwtService.getTokenPayload(token);
     }
 }
