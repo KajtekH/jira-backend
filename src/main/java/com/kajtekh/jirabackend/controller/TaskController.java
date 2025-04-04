@@ -1,15 +1,15 @@
 package com.kajtekh.jirabackend.controller;
 
+import com.kajtekh.jirabackend.model.Status;
 import com.kajtekh.jirabackend.model.task.dto.MoveTaskRequest;
 import com.kajtekh.jirabackend.model.task.dto.TaskResponse;
-import com.kajtekh.jirabackend.model.task.TaskStatus;
-import com.kajtekh.jirabackend.model.task.Task;
 import com.kajtekh.jirabackend.model.task.dto.TaskRequest;
 import com.kajtekh.jirabackend.service.IssueService;
 import com.kajtekh.jirabackend.service.TaskService;
 import com.kajtekh.jirabackend.service.UserService;
-import org.springframework.http.HttpStatus;
+import org.springframework.context.annotation.Profile;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -44,12 +44,13 @@ public class TaskController {
         return taskService.getAllTasks();
     }
 
-    @GetMapping("/{issueId}/{taskStatus}")
-    public List<TaskResponse> getTasksByStatus(@PathVariable TaskStatus taskStatus, @PathVariable Long issueId) {
-        return taskService.getTasksByStatus(taskStatus, issueId);
+    @GetMapping("/{issueId}/{status}")
+    public List<TaskResponse> getTasksByStatus(@PathVariable Status status, @PathVariable Long issueId) {
+        return taskService.getTasksByStatus(status, issueId);
     }
 
     @PostMapping("/{issueId}")
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_PRODUCT_MANAGER')")
     public ResponseEntity<TaskResponse> addTask(@PathVariable Long issueId, @RequestBody TaskRequest taskRequest) {
         final var issue = issueService.getIssueById(issueId);
         final var assignee = userService.getUserByUsername(taskRequest.assignee());
@@ -58,6 +59,7 @@ public class TaskController {
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_PRODUCT_MANAGER')")
     public ResponseEntity<TaskResponse> updateTask(@PathVariable Long id, @RequestBody TaskRequest taskRequest) {
         final var assignee = userService.getUserByUsername(taskRequest.assignee());
         final var taskResponse = fromTask(taskService.updateTask(id, taskRequest, assignee));
@@ -65,14 +67,25 @@ public class TaskController {
     }
 
     @PatchMapping()
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_WORKER')")
     public ResponseEntity<TaskResponse> moveTask(@RequestBody MoveTaskRequest moveTaskRequest) {
-        final var taskResponse = fromTask(taskService.moveTask(moveTaskRequest.taskId(), moveTaskRequest.taskStatus()));
+        final var taskResponse = fromTask(taskService.moveTask(moveTaskRequest.taskId(), moveTaskRequest.status()));
         return ResponseEntity.ok(taskResponse);
     }
 
+    @Profile("test")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteTask(@PathVariable Long id) {
         taskService.deleteTask(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @Profile("test")
+    @PostMapping
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_PRODUCT_MANAGER')")
+    public ResponseEntity<TaskResponse> addTask(@RequestBody TaskRequest taskRequest) {
+        final var assignee = userService.getUserByUsername(taskRequest.assignee());
+        final var taskResponse = fromTask(taskService.addTask(taskRequest, null, assignee));
+        return ResponseEntity.status(CREATED).body(taskResponse);
     }
 }

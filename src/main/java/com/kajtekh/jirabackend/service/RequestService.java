@@ -7,10 +7,14 @@ import com.kajtekh.jirabackend.model.request.dto.RequestRequest;
 import com.kajtekh.jirabackend.model.user.User;
 import com.kajtekh.jirabackend.repository.RequestRepository;
 import org.springframework.stereotype.Service;
+
+import java.time.LocalDateTime;
 import java.util.List;
 import static com.kajtekh.jirabackend.model.Status.ABANDONED;
 import static com.kajtekh.jirabackend.model.Status.CLOSED;
+import static com.kajtekh.jirabackend.model.Status.IN_PROGRESS;
 import static com.kajtekh.jirabackend.model.Status.OPEN;
+import static java.time.temporal.ChronoUnit.MINUTES;
 import static java.util.stream.Collectors.toList;
 
 @Service
@@ -26,7 +30,7 @@ public class RequestService {
     public List<Request> getAllRequests(Long productId) {
         return requestRepository.findAllByProductId(productId).stream()
                 .sorted((request1, request2) -> {
-            List<Status> order = List.of(OPEN, CLOSED, ABANDONED);
+            List<Status> order = List.of(OPEN,IN_PROGRESS, CLOSED, ABANDONED);
             return Integer.compare(order.indexOf(request1.getStatus()), order.indexOf(request2.getStatus()));
         }).collect(toList());
     }
@@ -43,6 +47,7 @@ public class RequestService {
         request.setAccountManager(accountManager);
         request.setStatus(OPEN);
         request.setProduct(product);
+        request.setOpenDate(LocalDateTime.now().truncatedTo(MINUTES));
         return requestRepository.save(request);
     }
 

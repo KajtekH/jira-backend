@@ -7,6 +7,7 @@ import com.kajtekh.jirabackend.service.IssueService;
 import com.kajtekh.jirabackend.service.RequestService;
 import com.kajtekh.jirabackend.service.UserService;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -45,14 +46,15 @@ public class IssueController {
         return ResponseEntity.ok(issueResponse);
     }
 
-
     @PatchMapping("/{id}/{status}")
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_PRODUCT_MANAGER')")
     public ResponseEntity<IssueResponse> updateStatus(@PathVariable Long id, @PathVariable Status status) {
         final var issueResponse = fromIssue(issueService.updateStatus(id, status));
         return ResponseEntity.ok(issueResponse);
     }
 
     @PostMapping("/{requestId}")
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_ACCOUNT_MANAGER')")
     public ResponseEntity<IssueResponse> addIssue(@RequestBody IssueRequest issueRequest, @PathVariable Long requestId) {
         final var productManager = userService.getUserByUsername(issueRequest.productManager());
         final var request = requestService.getRequestById(requestId);

@@ -3,6 +3,7 @@ package com.kajtekh.jirabackend.model.product;
 import com.kajtekh.jirabackend.model.request.Request;
 import com.kajtekh.jirabackend.model.user.User;
 import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
@@ -18,6 +19,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
 
@@ -34,9 +36,13 @@ public class Product {
     private Long id;
 
     private String name;
-    private String description;
     private String version;
-    private LocalDate releaseDate;
+
+    @Column(columnDefinition = "TEXT")
+    private String description;
+
+    @Column(columnDefinition = "TIMESTAMP(0)")
+    private LocalDateTime releaseDate;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "owner_id")

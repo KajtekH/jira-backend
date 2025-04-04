@@ -9,11 +9,14 @@ import com.kajtekh.jirabackend.model.user.User;
 import com.kajtekh.jirabackend.repository.IssueRepository;
 import org.springframework.stereotype.Service;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 import static com.kajtekh.jirabackend.model.Status.ABANDONED;
 import static com.kajtekh.jirabackend.model.Status.CLOSED;
+import static com.kajtekh.jirabackend.model.Status.IN_PROGRESS;
 import static com.kajtekh.jirabackend.model.Status.OPEN;
+import static java.time.temporal.ChronoUnit.MINUTES;
 
 @Service
 public class IssueService {
@@ -29,7 +32,7 @@ public class IssueService {
         final var issue = new Issue();
         issue.setName(issueRequest.name());
         issue.setDescription(issueRequest.description());
-        issue.setOpenDate(LocalDate.now());
+        issue.setOpenDate(LocalDateTime.now().truncatedTo(MINUTES));
         issue.setStatus(OPEN);
         issue.setProductManager(productManager);
         issue.setRequest(request);
@@ -43,7 +46,7 @@ public class IssueService {
     public List<IssueResponse> getAllIssues(Long id) {
         return issueRepository.findAllByRequestId(id).stream()
                 .sorted((issue1, issue2) -> {
-                    List<Status> order = List.of(OPEN, CLOSED, ABANDONED);
+                    List<Status> order = List.of(OPEN,IN_PROGRESS, CLOSED, ABANDONED);
                     return Integer.compare(order.indexOf(issue1.getStatus()), order.indexOf(issue2.getStatus()));
                 })
                 .map(IssueResponse::fromIssue)
@@ -54,7 +57,7 @@ public class IssueService {
         final var issue = issueRepository.findById(id).orElseThrow();
         issue.setStatus(status);
         if (status.equals(CLOSED)) {
-            issue.setCloseDate(LocalDate.now());
+            issue.setCloseDate(LocalDateTime.now().truncatedTo(MINUTES));
         }
         return issueRepository.save(issue);
     }

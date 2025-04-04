@@ -1,28 +1,24 @@
-package com.kajtekh.jirabackend.model.task;
+package com.kajtekh.jirabackend.model.issue;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.RequiredArgsConstructor;
 
 @Entity
-@Table(name = "task_types")
-@Data
-@NoArgsConstructor
-public class TaskType {
+@Table(name = "issue_types")
+public class IssueType {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String name;
 
-    public TaskType(String name) {
-        this.name = name;
+    public IssueType() {
     }
 
+    public IssueType(String name) {
+        this.name = name;
+    }
 }

@@ -26,18 +26,20 @@ public class AuthController {
     @PostMapping("/register")
     public ResponseEntity<Void> register(@RequestBody RegisterRequest request) {
         final var response = service.register(request);
-        final var cookie = tokenCookieBuilder.buildLoginTokenCookie(response.token());
+        final var accessToken = tokenCookieBuilder.buildAccessTokenCookie(response.accessToken());
         return ResponseEntity.ok()
-                .header(SET_COOKIE, cookie.toString())
+                .header(SET_COOKIE, accessToken.toString())
                 .build();
     }
     @PostMapping("/login")
     public ResponseEntity<TokenResponse> login(@RequestBody AuthenticationRequest request) {
         final var response = service.login(request);
-        final var cookie = tokenCookieBuilder.buildLoginTokenCookie(response.token());
+        final var accessToken = tokenCookieBuilder.buildAccessTokenCookie(response.accessToken());
+        final var refreshCookie = tokenCookieBuilder.buildRefreshTokenCookie(response.refreshToken());
         return ResponseEntity.ok()
-                .header(SET_COOKIE, cookie.toString())
-                .body(service.getTokenPayload(response.token()));
+                .header(SET_COOKIE, accessToken.toString())
+                .header(SET_COOKIE, refreshCookie.toString())
+                .body(service.getTokenPayload(response.accessToken()));
     }
 
 }

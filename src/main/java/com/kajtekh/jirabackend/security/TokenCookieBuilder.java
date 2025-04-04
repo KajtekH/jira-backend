@@ -5,11 +5,11 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class TokenCookieBuilder {
-    public static final String LOGIN_TOKEN_COOKIE = "tab_proj_login_token";
+    public static final String ACCESS_TOKEN_COOKIE = "tab_proj_access_token";
     public static final String REFRESH_TOKEN_COOKIE = "tab_proj_refresh_token";
 
-    public ResponseCookie buildLoginTokenCookie(String token) {
-        return ResponseCookie.from(LOGIN_TOKEN_COOKIE, token)
+    public ResponseCookie buildAccessTokenCookie(String token) {
+        return ResponseCookie.from(ACCESS_TOKEN_COOKIE, token)
                 .httpOnly(true)
                 .secure(true)
                 .path("/")

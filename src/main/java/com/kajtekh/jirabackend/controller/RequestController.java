@@ -7,6 +7,7 @@ import com.kajtekh.jirabackend.service.ProductService;
 import com.kajtekh.jirabackend.service.RequestService;
 import com.kajtekh.jirabackend.service.UserService;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -35,6 +36,7 @@ public class RequestController {
         this.productService = ProductService;
     }
 
+
     @GetMapping("/{productId}")
     public ResponseEntity<List<RequestResponse>> getAllRequests(@PathVariable Long productId) {
         return ResponseEntity.ok(requestService.getAllRequests(productId).stream().map(RequestResponse::fromRequest).toList());
@@ -47,6 +49,7 @@ public class RequestController {
     }
 
     @PostMapping("/{productId}")
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_ACCOUNT_MANAGER')")
     public ResponseEntity<RequestResponse> addRequest(@RequestBody RequestRequest requestRequest, @PathVariable Long productId) {
         final var accountManager = userService.getUserByUsername(requestRequest.accountManager());
         final var product = productService.getProductById(productId);
@@ -55,6 +58,7 @@ public class RequestController {
     }
 
     @PatchMapping("/{id}/{status}")
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_ACCOUNT_MANAGER')")
     public ResponseEntity<RequestResponse> updateStatus(@PathVariable Long id, @PathVariable Status status) {
         final var request = requestService.updateStatus(id, status);
         final var requestResponse = fromRequest(request);

@@ -43,6 +43,12 @@ public class User implements UserDetails {
     private String username;
 
     @Column(nullable = false)
+    private String firstName;
+
+    @Column(nullable = false)
+    private String lastName;
+
+    @Column(nullable = false)
     private String password;
 
     @Column(nullable = false, unique = true)
@@ -50,6 +56,8 @@ public class User implements UserDetails {
 
     @Enumerated(EnumType.STRING)
     private Role role;
+
+    private boolean isActive;
 
     @JsonIgnore
     @OneToMany(mappedBy = "owner", cascade = CascadeType.ALL, orphanRemoval = true)
@@ -60,7 +68,7 @@ public class User implements UserDetails {
     private List<Issue> issues = Collections.emptyList();
 
     @JsonIgnore
-    @OneToMany(mappedBy = "AccountManager", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "accountManager", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Request> requests = Collections.emptyList();
 
     @JsonIgnore
@@ -69,7 +77,7 @@ public class User implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-       return List.of(new SimpleGrantedAuthority(role.name()));
+       return Set.of(new SimpleGrantedAuthority("ROLE_" + role.name()));
     }
 
     @Override
@@ -84,7 +92,7 @@ public class User implements UserDetails {
 
     @Override
     public boolean isAccountNonExpired() {
-        return true;
+        return isActive;
     }
 
     @Override

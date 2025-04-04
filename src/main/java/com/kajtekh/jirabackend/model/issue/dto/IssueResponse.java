@@ -2,9 +2,10 @@ package com.kajtekh.jirabackend.model.issue.dto;
 
 import com.kajtekh.jirabackend.model.Status;
 import com.kajtekh.jirabackend.model.issue.Issue;
-import com.kajtekh.jirabackend.model.task.TaskStatus;
 
 import java.util.Optional;
+
+import static com.kajtekh.jirabackend.model.Status.CLOSED;
 
 public record IssueResponse(Long id, String name, String description, String openDate, String closeDate, Status status, String productManager, int tasksCount, int doneTasksCount) {
     public static IssueResponse fromIssue(Issue issue) {
@@ -17,7 +18,7 @@ public record IssueResponse(Long id, String name, String description, String ope
                 issue.getStatus(),
                 issue.getProductManager().getUsername(),
                 issue.getTasks().size(),
-                (int) issue.getTasks().stream().filter(task -> task.getTaskStatus().equals(TaskStatus.DONE)).count()
+                (int) issue.getTasks().stream().filter(task -> task.getStatus().equals(CLOSED)).count()
         );
     }
 }

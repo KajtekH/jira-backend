@@ -4,7 +4,6 @@ import com.kajtekh.jirabackend.model.auth.AuthenticationRequest;
 import com.kajtekh.jirabackend.model.auth.AuthenticationResponse;
 import com.kajtekh.jirabackend.model.auth.RegisterRequest;
 import com.kajtekh.jirabackend.model.auth.TokenResponse;
-import com.kajtekh.jirabackend.model.user.Role;
 import com.kajtekh.jirabackend.model.user.User;
 import com.kajtekh.jirabackend.repository.UserRepository;
 import com.kajtekh.jirabackend.security.JwtService;
@@ -20,17 +19,15 @@ import static com.kajtekh.jirabackend.model.user.Role.USER;
 @Service
 public class AuthService {
 
-    private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
-    private final UserRepository repository;
+    private final UserRepository userRepository;
     private final AuthenticationManager authenticationManager;
 
-    public AuthService(UserRepository userRepository, PasswordEncoder passwordEncoder, JwtService jwtService, UserRepository repository, AuthenticationManager authenticationManager) {
-        this.userRepository = userRepository;
+    public AuthService(PasswordEncoder passwordEncoder, JwtService jwtService, UserRepository userRepository, AuthenticationManager authenticationManager) {
         this.passwordEncoder = passwordEncoder;
         this.jwtService = jwtService;
-        this.repository = repository;
+        this.userRepository = userRepository;
         this.authenticationManager = authenticationManager;
     }
 
@@ -46,18 +43,20 @@ public class AuthService {
                 .role(USER)
                 .password(passwordEncoder.encode(request.password()))
                 .build();
-        repository.save(user);
-        var jwtToken = jwtService.generateToken(user);
-        return new AuthenticationResponse(jwtToken);
+        userRepository.save(user);
+        var accessToken = jwtService.generateToken(user);
+        var refreshToken = jwtService.generateRefreshToken(user);
+        return new AuthenticationResponse(accessToken, refreshToken);
     }
 
     public AuthenticationResponse login(AuthenticationRequest request) {
         authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(request.email(), request.password())
         );
-        var user = repository.findByUsernameOrEmail(request.email()).orElseThrow();
-        var jwtToken = jwtService.generateToken(user);
-        return new AuthenticationResponse(jwtToken);
+        var user = userRepository.findByUsernameOrEmail(request.email()).orElseThrow();
+        var accessToken = jwtService.generateToken(user);
+        var refreshToken = jwtService.generateRefreshToken(user);
+        return new AuthenticationResponse(accessToken, refreshToken);
     }
 
     public TokenResponse getTokenPayload(String token) {

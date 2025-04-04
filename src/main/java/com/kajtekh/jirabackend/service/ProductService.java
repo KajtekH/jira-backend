@@ -8,8 +8,11 @@ import com.kajtekh.jirabackend.repository.ProductRepository;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
+
+import static java.time.temporal.ChronoUnit.MINUTES;
 
 @Service
 public class ProductService {
@@ -47,7 +50,7 @@ public class ProductService {
             case MINOR -> product.setVersion(String.format("%d.%d.%d", major, minor + 1, 0));
             case PATCH -> product.setVersion(String.format("%d.%d.%d", major, minor, patch + 1));
         }
-        product.setReleaseDate(LocalDate.now());
+        product.setReleaseDate(LocalDateTime.now().truncatedTo(MINUTES));
         productRepository.save(product);
     }
 }

@@ -5,6 +5,7 @@ import com.kajtekh.jirabackend.model.request.Request;
 import com.kajtekh.jirabackend.model.task.Task;
 import com.kajtekh.jirabackend.model.user.User;
 import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
@@ -20,6 +21,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
 
@@ -36,10 +38,19 @@ public class Issue {
     private Long id;
 
     private String name;
-    private String description;
-    private LocalDate openDate;
-    private LocalDate closeDate;
     private Status status;
+
+    @Column(columnDefinition = "TEXT")
+    private String description;
+
+    @Column(columnDefinition = "TIMESTAMP(0)")
+    private LocalDateTime openDate;
+
+    @Column(columnDefinition = "TIMESTAMP(0)")
+    private LocalDateTime closeDate;
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    private IssueType issueType;
 
     @OneToMany(mappedBy = "issue", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<Task> tasks = Collections.emptyList();
