@@ -15,13 +15,13 @@ public class ApplicationConfig {
 
     private final UserService userService;
 
-    public ApplicationConfig(UserService userService) {
+    public ApplicationConfig(final UserService userService) {
         this.userService = userService;
     }
 
     @Bean
     public AuthenticationProvider authenticationProvider() {
-        DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
+        final DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
         provider.setUserDetailsService(userService);
         provider.setPasswordEncoder(passwordEncoder());
         return provider;
@@ -33,7 +33,7 @@ public class ApplicationConfig {
     }
 
     @Bean
-    public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception{
+    public AuthenticationManager authenticationManager(final AuthenticationConfiguration config) throws Exception{
         return config.getAuthenticationManager();
     }
 

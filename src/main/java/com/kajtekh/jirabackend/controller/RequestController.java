@@ -30,7 +30,7 @@ public class RequestController {
     private final UserService userService;
     private final ProductService productService;
 
-    public RequestController(RequestService requestService, UserService userService, ProductService ProductService) {
+    public RequestController(final RequestService requestService, final UserService userService, final ProductService ProductService) {
         this.requestService = requestService;
         this.userService = userService;
         this.productService = ProductService;
@@ -38,19 +38,19 @@ public class RequestController {
 
 
     @GetMapping("/{productId}")
-    public ResponseEntity<List<RequestResponse>> getAllRequests(@PathVariable Long productId) {
+    public ResponseEntity<List<RequestResponse>> getAllRequests(@PathVariable final Long productId) {
         return ResponseEntity.ok(requestService.getAllRequests(productId).stream().map(RequestResponse::fromRequest).toList());
     }
 
     @GetMapping("/request/{id}")
-    public ResponseEntity<RequestResponse> getRequestById(@PathVariable Long id) {
+    public ResponseEntity<RequestResponse> getRequestById(@PathVariable final Long id) {
         final var requestResponse = fromRequest(requestService.getRequestById(id));
         return ResponseEntity.ok(requestResponse);
     }
 
     @PostMapping("/{productId}")
     @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_ACCOUNT_MANAGER')")
-    public ResponseEntity<RequestResponse> addRequest(@RequestBody RequestRequest requestRequest, @PathVariable Long productId) {
+    public ResponseEntity<RequestResponse> addRequest(@RequestBody final RequestRequest requestRequest, @PathVariable final Long productId) {
         final var accountManager = userService.getUserByUsername(requestRequest.accountManager());
         final var product = productService.getProductById(productId);
         final var requestResponse = fromRequest(requestService.addRequest(requestRequest, accountManager, product));
@@ -59,7 +59,7 @@ public class RequestController {
 
     @PatchMapping("/{id}/{status}")
     @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_ACCOUNT_MANAGER')")
-    public ResponseEntity<RequestResponse> updateStatus(@PathVariable Long id, @PathVariable Status status) {
+    public ResponseEntity<RequestResponse> updateStatus(@PathVariable final Long id, @PathVariable final Status status) {
         final var request = requestService.updateStatus(id, status);
         final var requestResponse = fromRequest(request);
         if (status == CLOSED) {

@@ -24,11 +24,11 @@ public class IssueService {
     private final IssueRepository issueRepository;
 
 
-    public IssueService(IssueRepository issueRepository) {
+    public IssueService(final IssueRepository issueRepository) {
         this.issueRepository = issueRepository;
     }
 
-    public Issue addIssue(IssueRequest issueRequest, User productManager, Request request) {
+    public Issue addIssue(final IssueRequest issueRequest, final User productManager, final Request request) {
         final var issue = new Issue();
         issue.setName(issueRequest.name());
         issue.setDescription(issueRequest.description());
@@ -39,21 +39,21 @@ public class IssueService {
         return issueRepository.save(issue);
     }
 
-    public Issue getIssueById(Long id) {
+    public Issue getIssueById(final Long id) {
         return issueRepository.findById(id).orElse(null);
     }
 
-    public List<IssueResponse> getAllIssues(Long id) {
+    public List<IssueResponse> getAllIssues(final Long id) {
         return issueRepository.findAllByRequestId(id).stream()
                 .sorted((issue1, issue2) -> {
-                    List<Status> order = List.of(OPEN,IN_PROGRESS, CLOSED, ABANDONED);
+                    final List<Status> order = List.of(OPEN,IN_PROGRESS, CLOSED, ABANDONED);
                     return Integer.compare(order.indexOf(issue1.getStatus()), order.indexOf(issue2.getStatus()));
                 })
                 .map(IssueResponse::fromIssue)
                 .toList();
     }
 
-    public Issue updateStatus(Long id, Status status) {
+    public Issue updateStatus(final Long id, final Status status) {
         final var issue = issueRepository.findById(id).orElseThrow();
         issue.setStatus(status);
         if (status.equals(CLOSED)) {

@@ -17,7 +17,7 @@ public class ProductService {
 
     private final ProductRepository productRepository;
 
-    public ProductService(ProductRepository productRepository) {
+    public ProductService(final ProductRepository productRepository) {
         this.productRepository = productRepository;
     }
 
@@ -25,7 +25,7 @@ public class ProductService {
         return productRepository.findAll();
     }
 
-    public Product addProduct(ProductRequest productRequest, User owner) {
+    public Product addProduct(final ProductRequest productRequest, final User owner) {
         final var product = new Product();
         product.setName(productRequest.name());
         product.setDescription(productRequest.description());
@@ -34,11 +34,11 @@ public class ProductService {
         return productRepository.save(product);
     }
 
-    public Product getProductById(Long id) {
+    public Product getProductById(final Long id) {
         return productRepository.findById(id).orElse(null);
     }
 
-    public void bumpVersion(Product product, RequestType requestType) {
+    public void bumpVersion(final Product product, final RequestType requestType) {
         final var version = product.getVersion().split("\\.");
         final var major = Integer.parseInt(version[0]);
         final var minor = Integer.parseInt(version[1]);

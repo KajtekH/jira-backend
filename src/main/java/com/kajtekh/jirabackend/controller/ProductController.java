@@ -25,7 +25,7 @@ public class ProductController {
     private final ProductService productService;
     private final UserService userService;
 
-    public ProductController(ProductService productService, UserService userService) {
+    public ProductController(final ProductService productService, final UserService userService) {
         this.productService = productService;
         this.userService = userService;
     }
@@ -36,13 +36,13 @@ public class ProductController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ProductResponse> getProductById(@PathVariable Long id) {
+    public ResponseEntity<ProductResponse> getProductById(@PathVariable final Long id) {
         return ResponseEntity.ok(fromProduct(productService.getProductById(id)));
     }
 
     @PostMapping
     @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_OWNER')")
-    public ResponseEntity<ProductResponse> addProduct(@RequestBody ProductRequest productRequest) {
+    public ResponseEntity<ProductResponse> addProduct(@RequestBody final ProductRequest productRequest) {
         final var owner = userService.getUserByUsername(productRequest.owner());
         return ResponseEntity.status(CREATED).body(fromProduct(productService.addProduct(productRequest, owner)));
     }

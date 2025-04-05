@@ -31,55 +31,55 @@ public class JwtService {
     private final ObjectMapper objectMapper;
     private final RedisTemplate<String, Object> redisTemplate;
 
-    public JwtService(ObjectMapper objectMapper, RedisTemplate<String, Object> redisTemplate) {
+    public JwtService(final ObjectMapper objectMapper, final RedisTemplate<String, Object> redisTemplate) {
         this.objectMapper = objectMapper;
         this.redisTemplate = redisTemplate;
     }
 
-    public String generateToken(User user) {
+    public String generateToken(final User user) {
         return generateToken(new HashMap<>(), user);
     }
 
     public String generateToken(
-            Map<String, Object> extraClaims,
-            User userDetails) {
+            final Map<String, Object> extraClaims,
+            final User userDetails) {
         return buildToken(extraClaims, userDetails);
     }
 
-    public String generateRefreshToken(User user) {
+    public String generateRefreshToken(final User user) {
         return buildRefreshToken(user);
     }
 
 
-    public String extractUsername(String token) {
+    public String extractUsername(final String token) {
         return extractClaim(token, Claims::getSubject);
     }
 
-    public <T> T extractClaim(String token, Function<Claims, T> claimsResolver) {
+    public <T> T extractClaim(final String token, final Function<Claims, T> claimsResolver) {
         final Claims claims = extractAllClaims(token);
         return claimsResolver.apply(claims);
     }
 
-    public boolean isTokenValid(String token, UserDetails userDetails) {
+    public boolean isTokenValid(final String token, final UserDetails userDetails) {
         final String username = extractUsername(token);
         return (username.equals(userDetails.getUsername())) && !isTokenExpired(token);
     }
 
-    public boolean validateRefreshToken(String username, String refreshToken) {
-        String storedToken = (String) redisTemplate.opsForValue().get("refresh_token:" + username);
+    public boolean validateRefreshToken(final String username, final String refreshToken) {
+        final String storedToken = (String) redisTemplate.opsForValue().get("refresh_token:" + username);
         return storedToken != null && storedToken.equals(refreshToken);
     }
 
-    public TokenResponse getTokenPayload(String token){
+    public TokenResponse getTokenPayload(final String token){
         try{
             return objectMapper.readValue(decodeTokenPayload(token), TokenResponse.class);
         }
-        catch (Exception e){
+        catch (final Exception e){
             throw new RuntimeException("Failed to decode token payload", e);
         }
     }
 
-    public void storeRefreshToken(String username, String refreshToken) {
+    public void storeRefreshToken(final String username, final String refreshToken) {
         redisTemplate.opsForValue().set(
                 "refresh_token:" + username,
                 refreshToken,
@@ -87,19 +87,19 @@ public class JwtService {
         );
     }
 
-    public void revokeRefreshToken(String username) {
+    public void revokeRefreshToken(final String username) {
         redisTemplate.delete("refresh_token:" + username);
     }
 
-    private byte[] decodeTokenPayload(String token) {
-        String[] parts = token.split("\\.");
+    private byte[] decodeTokenPayload(final String token) {
+        final String[] parts = token.split("\\.");
         if (parts.length != 3) {
             throw new IllegalArgumentException("Invalid JWT token");
         }
         return Base64.getDecoder().decode(parts[1].getBytes(StandardCharsets.UTF_8));
     }
 
-    private Claims extractAllClaims(String token) {
+    private Claims extractAllClaims(final String token) {
         return Jwts
                 .parserBuilder()
                 .setSigningKey(getSigningKey())
@@ -109,12 +109,12 @@ public class JwtService {
     }
 
     private Key getSigningKey() {
-        byte[] keyBytes = Decoders.BASE64.decode(secretKey);
+        final byte[] keyBytes = Decoders.BASE64.decode(secretKey);
         return Keys.hmacShaKeyFor(keyBytes);
     }
 
 
-    private String buildRefreshToken(User user) {
+    private String buildRefreshToken(final User user) {
         return Jwts
                 .builder()
                 .setSubject(user.getUsername())
@@ -125,8 +125,8 @@ public class JwtService {
     }
 
     private String buildToken(
-            Map<String, Object> extraClaims,
-            User userDetails
+            final Map<String, Object> extraClaims,
+            final User userDetails
     ) {
         extraClaims.put("email", userDetails.getEmail());
         extraClaims.put("username", userDetails.getUsername());
@@ -141,11 +141,11 @@ public class JwtService {
                 .compact();
     }
 
-    private boolean isTokenExpired(String token) {
+    private boolean isTokenExpired(final String token) {
         return extractExpiration(token).before(new Date());
     }
 
-    private Date extractExpiration(String token) {
+    private Date extractExpiration(final String token) {
         return extractClaim(token, Claims::getExpiration);
     }
 }

@@ -18,7 +18,7 @@ public class IssueType {
     public IssueType() {
     }
 
-    public IssueType(String name) {
+    public IssueType(final String name) {
         this.name = name;
     }
 }

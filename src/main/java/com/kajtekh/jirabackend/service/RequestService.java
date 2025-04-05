@@ -23,24 +23,24 @@ public class RequestService {
 
     private final RequestRepository requestRepository;
 
-    public RequestService(RequestRepository requestRepository) {
+    public RequestService(final RequestRepository requestRepository) {
         this.requestRepository = requestRepository;
     }
 
 
-    public List<Request> getAllRequests(Long productId) {
+    public List<Request> getAllRequests(final Long productId) {
         return requestRepository.findAllByProductId(productId).stream()
                 .sorted((request1, request2) -> {
-            List<Status> order = List.of(OPEN,IN_PROGRESS, CLOSED, ABANDONED);
+            final List<Status> order = List.of(OPEN,IN_PROGRESS, CLOSED, ABANDONED);
             return Integer.compare(order.indexOf(request1.getStatus()), order.indexOf(request2.getStatus()));
         }).collect(toList());
     }
 
-    public Request getRequestById(Long id) {
+    public Request getRequestById(final Long id) {
         return requestRepository.findById(id).orElse(null);
     }
 
-    public Request addRequest(RequestRequest requestRequest, User accountManager, Product product) {
+    public Request addRequest(final RequestRequest requestRequest, final User accountManager, final Product product) {
         final var request = new Request();
         request.setName(requestRequest.name());
         request.setDescription(requestRequest.description());
@@ -52,7 +52,7 @@ public class RequestService {
         return requestRepository.save(request);
     }
 
-    public Request updateStatus(Long id, Status status) {
+    public Request updateStatus(final Long id, final Status status) {
         final var request = requestRepository.findById(id).orElseThrow();
         request.setStatus(status);
         return requestRepository.save(request);

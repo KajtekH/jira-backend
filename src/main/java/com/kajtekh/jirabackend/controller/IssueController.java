@@ -29,33 +29,33 @@ public class IssueController {
     private final UserService userService;
     private final RequestService requestService;
 
-    public IssueController(IssueService issueService, UserService userService, RequestService requestService) {
+    public IssueController(final IssueService issueService, final UserService userService, final RequestService requestService) {
         this.issueService = issueService;
         this.userService = userService;
         this.requestService = requestService;
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<List<IssueResponse>> getAllIssues(@PathVariable Long id) {
+    public ResponseEntity<List<IssueResponse>> getAllIssues(@PathVariable final Long id) {
         return ResponseEntity.ok(issueService.getAllIssues(id));
     }
 
     @GetMapping("issue/{id}")
-    public ResponseEntity<IssueResponse> getIssueById(@PathVariable Long id) {
+    public ResponseEntity<IssueResponse> getIssueById(@PathVariable final Long id) {
         final var issueResponse = fromIssue(issueService.getIssueById(id));
         return ResponseEntity.ok(issueResponse);
     }
 
     @PatchMapping("/{id}/{status}")
     @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_PRODUCT_MANAGER')")
-    public ResponseEntity<IssueResponse> updateStatus(@PathVariable Long id, @PathVariable Status status) {
+    public ResponseEntity<IssueResponse> updateStatus(@PathVariable final Long id, @PathVariable final Status status) {
         final var issueResponse = fromIssue(issueService.updateStatus(id, status));
         return ResponseEntity.ok(issueResponse);
     }
 
     @PostMapping("/{requestId}")
     @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_ACCOUNT_MANAGER')")
-    public ResponseEntity<IssueResponse> addIssue(@RequestBody IssueRequest issueRequest, @PathVariable Long requestId) {
+    public ResponseEntity<IssueResponse> addIssue(@RequestBody final IssueRequest issueRequest, @PathVariable final Long requestId) {
         final var productManager = userService.getUserByUsername(issueRequest.productManager());
         final var request = requestService.getRequestById(requestId);
         final var issueResponse = fromIssue(issueService.addIssue(issueRequest, productManager, request));

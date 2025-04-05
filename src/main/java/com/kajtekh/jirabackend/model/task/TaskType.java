@@ -19,7 +19,7 @@ public class TaskType {
     private Long id;
     private String name;
 
-    public TaskType(String name) {
+    public TaskType(final String name) {
         this.name = name;
     }
 

@@ -45,12 +45,12 @@ public class DataInitializer {
     private final PasswordEncoder passwordEncoder;
 
     @Bean
-    CommandLineRunner initGodUser(UserRepository userRepository) {
+    CommandLineRunner initGodUser(final UserRepository userRepository) {
         if (userRepository.findByUsername("tab_admin").isPresent()) {
             return args -> {};
         }
         return args -> {
-            var godUser = User.builder()
+            final var godUser = User.builder()
                     .username("tab_admin")
                     .email("tabadmin@gmail.com")
                     .firstName("Tab")
@@ -65,13 +65,13 @@ public class DataInitializer {
 
     @Bean
     @Profile("test")
-    CommandLineRunner initTestData(UserRepository userRepository,
-                                   TaskTypeRepository taskTypeRepository,
-                                   TaskRepository taskRepository,
-                                   IssueTypeRepository issueTypeRepository,
-                                   IssueRepository issueRepository,
-                                   RequestRepository requestRepository,
-                                   ProductRepository productRepository) {
+    CommandLineRunner initTestData(final UserRepository userRepository,
+                                   final TaskTypeRepository taskTypeRepository,
+                                   final TaskRepository taskRepository,
+                                   final IssueTypeRepository issueTypeRepository,
+                                   final IssueRepository issueRepository,
+                                   final RequestRepository requestRepository,
+                                   final ProductRepository productRepository) {
 
         if (isDatabaseEmpty(userRepository, taskTypeRepository, taskRepository,issueTypeRepository, issueRepository, requestRepository, productRepository)) {
 
@@ -96,13 +96,13 @@ public class DataInitializer {
         return args -> {};
     }
 
-    private boolean isDatabaseEmpty(UserRepository userRepository,
-                                   TaskTypeRepository taskTypeRepository,
-                                   TaskRepository taskRepository,
-                                      IssueTypeRepository issueTypeRepository,
-                                   IssueRepository issueRepository,
-                                   RequestRepository requestRepository,
-                                   ProductRepository productRepository) {
+    private boolean isDatabaseEmpty(final UserRepository userRepository,
+                                    final TaskTypeRepository taskTypeRepository,
+                                    final TaskRepository taskRepository,
+                                    final IssueTypeRepository issueTypeRepository,
+                                    final IssueRepository issueRepository,
+                                    final RequestRepository requestRepository,
+                                    final ProductRepository productRepository) {
         return userRepository.count() < 2 &&
                 taskTypeRepository.count() == 0 &&
                 taskRepository.count() == 0 &&
@@ -113,7 +113,7 @@ public class DataInitializer {
     }
 
     private List<User> prepareUsers() {
-        List<User> userList = new ArrayList<>();
+        final List<User> userList = new ArrayList<>();
         userList.add(User.builder()
                 .username("test_user")
                 .firstName("Jarosław")
@@ -162,8 +162,8 @@ public class DataInitializer {
         return userList;
     }
 
-    private List<Product> prepareProducts(User user) {
-        List<Product> products = new ArrayList<>();
+    private List<Product> prepareProducts(final User user) {
+        final List<Product> products = new ArrayList<>();
         products.add(Product.builder()
                 .name("Test Product 1")
                 .description("Description for Test Product 1")
@@ -179,8 +179,8 @@ public class DataInitializer {
         return products;
     }
 
-    private List<Request> prepareRequests(User user, List<Product> products) {
-        List<Request> requests = new ArrayList<>();
+    private List<Request> prepareRequests(final User user, final List<Product> products) {
+        final List<Request> requests = new ArrayList<>();
         requests.add(Request.builder()
                 .name("Test Request 1")
                 .description("Description for Test Request 1")
@@ -217,7 +217,7 @@ public class DataInitializer {
     }
 
     private List<IssueType> prepareIssueTypes() {
-        List<IssueType> issueTypes = new ArrayList<>();
+        final List<IssueType> issueTypes = new ArrayList<>();
         issueTypes.add(new IssueType("ERROR"));
         issueTypes.add(new IssueType("CRITICAL_ERROR"));
         issueTypes.add(new IssueType("CHANGE"));
@@ -225,8 +225,8 @@ public class DataInitializer {
         return issueTypes;
     }
 
-    private List<Issue> prepareIssues(User user, List<Request> requests, List<IssueType> issueTypes) {
-        List<Issue> issues = new ArrayList<>();
+    private List<Issue> prepareIssues(final User user, final List<Request> requests, final List<IssueType> issueTypes) {
+        final List<Issue> issues = new ArrayList<>();
         issues.add(Issue.builder()
                 .name("Test Issue 1")
                 .description("Description for Test Issue 1")
@@ -249,7 +249,7 @@ public class DataInitializer {
     }
 
     private List<TaskType> prepareTaskTypes() {
-        List<TaskType> taskTypes = new ArrayList<>();
+        final List<TaskType> taskTypes = new ArrayList<>();
         taskTypes.add(new TaskType("QUALITY"));
         taskTypes.add(new TaskType("BUG"));
         taskTypes.add(new TaskType("FEATURE"));
@@ -257,8 +257,8 @@ public class DataInitializer {
         return taskTypes;
     }
 
-    private List<Task> prepareTasks(User user, List<Issue> issues, List<TaskType> taskTypes) {
-        List<Task> tasks = new ArrayList<>();
+    private List<Task> prepareTasks(final User user, final List<Issue> issues, final List<TaskType> taskTypes) {
+        final List<Task> tasks = new ArrayList<>();
         issues.forEach(issue -> taskTypes.forEach(taskType -> tasks.add(Task.builder()
                 .name("Test Task 1")
                 .description("Description for Test Task 1")

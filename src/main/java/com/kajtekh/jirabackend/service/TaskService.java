@@ -23,7 +23,7 @@ public class TaskService {
     private final TaskTypeRepository taskTypeRepository;
 
 
-    public TaskService(TaskRepository taskRepository, TaskTypeRepository taskTypeRepository) {
+    public TaskService(final TaskRepository taskRepository, final TaskTypeRepository taskTypeRepository) {
         this.taskRepository = taskRepository;
         this.taskTypeRepository = taskTypeRepository;
     }
@@ -34,7 +34,7 @@ public class TaskService {
     }
 
     @Transactional
-    public Task addTask(TaskRequest taskRequest, Issue issue, User assignee) {
+    public Task addTask(final TaskRequest taskRequest, final Issue issue, final User assignee) {
         final var task = new Task();
         taskTypeRepository.findByName(taskRequest.taskType()).ifPresentOrElse(
                 taskType -> {
@@ -54,7 +54,7 @@ public class TaskService {
         return taskRepository.save(task);
     }
 
-    public Task moveTask(Long id, Status taskStatus) {
+    public Task moveTask(final Long id, final Status taskStatus) {
         final var task = taskRepository.findById(id).orElseThrow();
         task.setStatus(taskStatus);
         task.setUpdatedAt(LocalDateTime.now().truncatedTo(MINUTES));
@@ -62,15 +62,15 @@ public class TaskService {
         return task;
     }
 
-    public void deleteTask(Long id) {
+    public void deleteTask(final Long id) {
         taskRepository.deleteById(id);
     }
 
-    public List<TaskResponse> getTasksByStatus(Status status, Long issueId) {
+    public List<TaskResponse> getTasksByStatus(final Status status, final Long issueId) {
         return taskRepository.findAllByStatusAndIssueId(status, issueId).stream().map(TaskResponse::fromTask).toList();
     }
 
-    public Task updateTask(Long id, TaskRequest taskRequest, User assignee) {
+    public Task updateTask(final Long id, final TaskRequest taskRequest, final User assignee) {
         final var task = taskRepository.findById(id).orElseThrow();
         final var taskType = taskTypeRepository.findByName(taskRequest.taskType()).orElseThrow();
         task.setName(taskRequest.name());

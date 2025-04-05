@@ -8,7 +8,7 @@ import java.util.Optional;
 import static com.kajtekh.jirabackend.model.Status.CLOSED;
 
 public record IssueResponse(Long id, String name, String description, String openDate, String closeDate, Status status, String productManager, int tasksCount, int doneTasksCount) {
-    public static IssueResponse fromIssue(Issue issue) {
+    public static IssueResponse fromIssue(final Issue issue) {
         return new IssueResponse(
                 issue.getId(),
                 issue.getName(),

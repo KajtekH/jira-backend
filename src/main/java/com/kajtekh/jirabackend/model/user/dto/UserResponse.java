@@ -5,7 +5,7 @@ import lombok.NonNull;
 
 public record UserResponse(Long id, @NonNull String username, @NonNull String email, String firstName, String lastName, boolean isActive) {
 
-    public static UserResponse from(User user) {
+    public static UserResponse from(final User user) {
         return new UserResponse(
                 user.getId(),
                 user.getUsername(),

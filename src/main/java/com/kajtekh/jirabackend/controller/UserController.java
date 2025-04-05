@@ -23,7 +23,7 @@ public class UserController {
 
     private final UserService userService;
 
-    public UserController(UserService userService) {
+    public UserController(final UserService userService) {
         this.userService = userService;
     }
 
@@ -33,21 +33,22 @@ public class UserController {
     }
 
     @PatchMapping("/{id}/role")
-    public ResponseEntity<Void> updateUserRole(@PathVariable Long id, @RequestBody Role role) {
+    public ResponseEntity<Void> updateUserRole(@PathVariable final Long id, @RequestBody final Role role) {
         userService.updateUserRole(id, role);
         return ResponseEntity.noContent().build();
     }
 
     @PatchMapping("/{id}/active")
-    public ResponseEntity<Void> activateUser(@PathVariable Long id, @RequestBody boolean active) {
+    public ResponseEntity<Void> activateUser(@PathVariable final Long id, @RequestBody final boolean active) {
         userService.changeActive(id, active);
         return ResponseEntity.noContent().build();
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<UserResponse> updateUser(@PathVariable Long id, @RequestBody UserUpdateRequest userUpdateRequest) {
+    public ResponseEntity<UserResponse> updateUser(@PathVariable final Long id, @RequestBody final UserUpdateRequest userUpdateRequest) {
         final var user = userService.getUserById(id);
-        return ResponseEntity.noContent().build();
+        final var updatedUser = userService.updateUser(user, userUpdateRequest);
+        return ResponseEntity.ok(UserResponse.from(updatedUser));
     }
 
 }

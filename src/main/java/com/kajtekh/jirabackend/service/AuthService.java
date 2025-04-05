@@ -29,7 +29,7 @@ public class AuthService {
     private final UserRepository userRepository;
     private final AuthenticationManager authenticationManager;
 
-    public AuthService(PasswordEncoder passwordEncoder, JwtService jwtService, UserRepository userRepository, AuthenticationManager authenticationManager) {
+    public AuthService(final PasswordEncoder passwordEncoder, final JwtService jwtService, final UserRepository userRepository, final AuthenticationManager authenticationManager) {
         this.passwordEncoder = passwordEncoder;
         this.jwtService = jwtService;
         this.userRepository = userRepository;
@@ -39,34 +39,34 @@ public class AuthService {
     private static final Logger logger = LoggerFactory.getLogger(AuthService.class);
 
 
-    public AuthenticationResponse register(RegisterRequest request) {
+    public AuthenticationResponse register(final RegisterRequest request) {
         logger.info("Register method called with request: {}", request);
 
-        var user = User.builder()
+        final var user = User.builder()
                 .username(request.username())
                 .email(request.email())
                 .role(USER)
                 .password(passwordEncoder.encode(request.password()))
                 .build();
         userRepository.save(user);
-        var accessToken = jwtService.generateToken(user);
-        var refreshToken = jwtService.generateRefreshToken(user);
+        final var accessToken = jwtService.generateToken(user);
+        final var refreshToken = jwtService.generateRefreshToken(user);
         return new AuthenticationResponse(accessToken, refreshToken);
     }
 
-    public AuthenticationResponse login(AuthenticationRequest request) {
+    public AuthenticationResponse login(final AuthenticationRequest request) {
         authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(request.email(), request.password())
         );
-        var user = userRepository.findByUsernameOrEmail(request.email()).orElseThrow();
-        var accessToken = jwtService.generateToken(user);
-        var refreshToken = jwtService.generateRefreshToken(user);
+        final var user = userRepository.findByUsernameOrEmail(request.email()).orElseThrow();
+        final var accessToken = jwtService.generateToken(user);
+        final var refreshToken = jwtService.generateRefreshToken(user);
         jwtService.storeRefreshToken(user.getUsername(), refreshToken);
         return new AuthenticationResponse(accessToken, refreshToken);
     }
 
-    public AuthenticationResponse refresh(HttpServletRequest request) {
-        Cookie[] cookies = request.getCookies();
+    public AuthenticationResponse refresh(final HttpServletRequest request) {
+        final Cookie[] cookies = request.getCookies();
         if (cookies == null) {
             throw new RuntimeException("No cookies found");
         }
@@ -75,7 +75,7 @@ public class AuthService {
                 .findFirst()
                 .orElseThrow(() -> new RuntimeException("Refresh token not found"))
                 .getValue();
-        var username = jwtService.extractUsername(refreshToken);
+        final var username = jwtService.extractUsername(refreshToken);
 
         if (!jwtService.validateRefreshToken(username, refreshToken)) {
             throw new RuntimeException("Invalid refresh token");
@@ -92,12 +92,12 @@ public class AuthService {
         return new AuthenticationResponse(accessToken, newRefreshToken);
     }
 
-    public TokenResponse getTokenPayload(String token) {
+    public TokenResponse getTokenPayload(final String token) {
         return jwtService.getTokenPayload(token);
     }
 
-    public void logout(HttpServletRequest request) {
-        Cookie[] cookies = request.getCookies();
+    public void logout(final HttpServletRequest request) {
+        final Cookie[] cookies = request.getCookies();
         if (cookies == null) {
             throw new RuntimeException("No cookies found");
         }

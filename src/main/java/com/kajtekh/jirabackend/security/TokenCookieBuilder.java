@@ -8,7 +8,7 @@ public class TokenCookieBuilder {
     public static final String ACCESS_TOKEN_COOKIE = "tab_proj_access_token";
     public static final String REFRESH_TOKEN_COOKIE = "tab_proj_refresh_token";
 
-    public ResponseCookie buildAccessTokenCookie(String token) {
+    public ResponseCookie buildAccessTokenCookie(final String token) {
         return ResponseCookie.from(ACCESS_TOKEN_COOKIE, token)
                 .httpOnly(true)
                 .secure(true)
@@ -18,7 +18,7 @@ public class TokenCookieBuilder {
                 .build();
     }
 
-    public ResponseCookie buildRefreshTokenCookie(String token) {
+    public ResponseCookie buildRefreshTokenCookie(final String token) {
         return ResponseCookie.from(REFRESH_TOKEN_COOKIE, token)
                 .httpOnly(true)
                 .secure(true)

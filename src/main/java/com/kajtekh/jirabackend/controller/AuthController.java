@@ -20,13 +20,13 @@ public class AuthController {
     private final AuthService service;
     private final TokenCookieBuilder tokenCookieBuilder;
 
-    public AuthController(AuthService service, TokenCookieBuilder tokenCookieBuilder) {
+    public AuthController(final AuthService service, final TokenCookieBuilder tokenCookieBuilder) {
         this.service = service;
         this.tokenCookieBuilder = tokenCookieBuilder;
     }
 
     @PostMapping("/register")
-    public ResponseEntity<Void> register(@RequestBody RegisterRequest request) {
+    public ResponseEntity<Void> register(@RequestBody final RegisterRequest request) {
         final var response = service.register(request);
         final var accessToken = tokenCookieBuilder.buildAccessTokenCookie(response.accessToken());
         return ResponseEntity.ok()
@@ -34,7 +34,7 @@ public class AuthController {
                 .build();
     }
     @PostMapping("/login")
-    public ResponseEntity<TokenResponse> login(@RequestBody AuthenticationRequest request) {
+    public ResponseEntity<TokenResponse> login(@RequestBody final AuthenticationRequest request) {
         final var response = service.login(request);
         final var accessToken = tokenCookieBuilder.buildAccessTokenCookie(response.accessToken());
         final var refreshCookie = tokenCookieBuilder.buildRefreshTokenCookie(response.refreshToken());
@@ -45,7 +45,7 @@ public class AuthController {
     }
 
     @PostMapping("/refresh")
-    public ResponseEntity<Void> refresh(HttpServletRequest request) {
+    public ResponseEntity<Void> refresh(final HttpServletRequest request) {
         final var response = service.refresh(request);
         final var accessToken = tokenCookieBuilder.buildAccessTokenCookie(response.accessToken());
         final var refreshCookie = tokenCookieBuilder.buildRefreshTokenCookie(response.refreshToken());
@@ -56,7 +56,7 @@ public class AuthController {
     }
 
     @PostMapping("/logout")
-    public ResponseEntity<Void> logout(HttpServletRequest request) {
+    public ResponseEntity<Void> logout(final HttpServletRequest request) {
         service.logout(request);
         final var accessToken = tokenCookieBuilder.buildExpiredAccessTokenCookie();
         final var refreshCookie = tokenCookieBuilder.buildExpiredRefreshTokenCookie();

@@ -33,7 +33,7 @@ public class TaskController {
     private final UserService userService;
     private final IssueService issueService;
 
-    public TaskController(TaskService taskService, UserService userService, IssueService issueService) {
+    public TaskController(final TaskService taskService, final UserService userService, final IssueService issueService) {
         this.taskService = taskService;
         this.userService = userService;
         this.issueService = issueService;
@@ -45,13 +45,13 @@ public class TaskController {
     }
 
     @GetMapping("/{issueId}/{status}")
-    public List<TaskResponse> getTasksByStatus(@PathVariable Status status, @PathVariable Long issueId) {
+    public List<TaskResponse> getTasksByStatus(@PathVariable final Status status, @PathVariable final Long issueId) {
         return taskService.getTasksByStatus(status, issueId);
     }
 
     @PostMapping("/{issueId}")
     @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_PRODUCT_MANAGER')")
-    public ResponseEntity<TaskResponse> addTask(@PathVariable Long issueId, @RequestBody TaskRequest taskRequest) {
+    public ResponseEntity<TaskResponse> addTask(@PathVariable final Long issueId, @RequestBody final TaskRequest taskRequest) {
         final var issue = issueService.getIssueById(issueId);
         final var assignee = userService.getUserByUsername(taskRequest.assignee());
         final var taskResponse = fromTask(taskService.addTask(taskRequest, issue, assignee));
@@ -60,7 +60,7 @@ public class TaskController {
 
     @PutMapping("/{id}")
     @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_PRODUCT_MANAGER')")
-    public ResponseEntity<TaskResponse> updateTask(@PathVariable Long id, @RequestBody TaskRequest taskRequest) {
+    public ResponseEntity<TaskResponse> updateTask(@PathVariable final Long id, @RequestBody final TaskRequest taskRequest) {
         final var assignee = userService.getUserByUsername(taskRequest.assignee());
         final var taskResponse = fromTask(taskService.updateTask(id, taskRequest, assignee));
         return ResponseEntity.ok(taskResponse);
@@ -68,14 +68,14 @@ public class TaskController {
 
     @PatchMapping()
     @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_WORKER')")
-    public ResponseEntity<TaskResponse> moveTask(@RequestBody MoveTaskRequest moveTaskRequest) {
+    public ResponseEntity<TaskResponse> moveTask(@RequestBody final MoveTaskRequest moveTaskRequest) {
         final var taskResponse = fromTask(taskService.moveTask(moveTaskRequest.taskId(), moveTaskRequest.status()));
         return ResponseEntity.ok(taskResponse);
     }
 
     @Profile("test")
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteTask(@PathVariable Long id) {
+    public ResponseEntity<Void> deleteTask(@PathVariable final Long id) {
         taskService.deleteTask(id);
         return ResponseEntity.noContent().build();
     }
@@ -83,7 +83,7 @@ public class TaskController {
     @Profile("test")
     @PostMapping
     @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_PRODUCT_MANAGER')")
-    public ResponseEntity<TaskResponse> addTask(@RequestBody TaskRequest taskRequest) {
+    public ResponseEntity<TaskResponse> addTask(@RequestBody final TaskRequest taskRequest) {
         final var assignee = userService.getUserByUsername(taskRequest.assignee());
         final var taskResponse = fromTask(taskService.addTask(taskRequest, null, assignee));
         return ResponseEntity.status(CREATED).body(taskResponse);
