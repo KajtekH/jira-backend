@@ -2,8 +2,8 @@ package com.kajtekh.jirabackend.controller;
 
 import com.kajtekh.jirabackend.model.Status;
 import com.kajtekh.jirabackend.model.task.dto.MoveTaskRequest;
-import com.kajtekh.jirabackend.model.task.dto.TaskResponse;
 import com.kajtekh.jirabackend.model.task.dto.TaskRequest;
+import com.kajtekh.jirabackend.model.task.dto.TaskResponse;
 import com.kajtekh.jirabackend.service.IssueService;
 import com.kajtekh.jirabackend.service.TaskService;
 import com.kajtekh.jirabackend.service.UserService;

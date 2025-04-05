@@ -8,7 +8,7 @@ import com.kajtekh.jirabackend.model.request.Request;
 import com.kajtekh.jirabackend.model.user.User;
 import com.kajtekh.jirabackend.repository.IssueRepository;
 import org.springframework.stereotype.Service;
-import java.time.LocalDate;
+
 import java.time.LocalDateTime;
 import java.util.List;
 

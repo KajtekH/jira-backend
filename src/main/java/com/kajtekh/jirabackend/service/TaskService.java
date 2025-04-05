@@ -2,9 +2,9 @@ package com.kajtekh.jirabackend.service;
 
 import com.kajtekh.jirabackend.model.Status;
 import com.kajtekh.jirabackend.model.issue.Issue;
-import com.kajtekh.jirabackend.model.task.dto.TaskResponse;
 import com.kajtekh.jirabackend.model.task.Task;
 import com.kajtekh.jirabackend.model.task.dto.TaskRequest;
+import com.kajtekh.jirabackend.model.task.dto.TaskResponse;
 import com.kajtekh.jirabackend.model.user.User;
 import com.kajtekh.jirabackend.repository.TaskRepository;
 import com.kajtekh.jirabackend.repository.TaskTypeRepository;

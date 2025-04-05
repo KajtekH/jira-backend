@@ -7,9 +7,7 @@ import com.kajtekh.jirabackend.model.user.User;
 import com.kajtekh.jirabackend.repository.ProductRepository;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.Collection;
 import java.util.List;
 
 import static java.time.temporal.ChronoUnit.MINUTES;

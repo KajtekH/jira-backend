@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
+
 import static com.kajtekh.jirabackend.model.Status.ABANDONED;
 import static com.kajtekh.jirabackend.model.Status.CLOSED;
 import static com.kajtekh.jirabackend.model.Status.IN_PROGRESS;

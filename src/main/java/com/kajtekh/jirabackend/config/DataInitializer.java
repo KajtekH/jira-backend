@@ -20,6 +20,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 import org.springframework.security.crypto.password.PasswordEncoder;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -258,20 +259,16 @@ public class DataInitializer {
 
     private List<Task> prepareTasks(User user, List<Issue> issues, List<TaskType> taskTypes) {
         List<Task> tasks = new ArrayList<>();
-        issues.forEach(issue -> {
-            taskTypes.forEach(taskType -> {
-                tasks.add(Task.builder()
-                        .name("Test Task 1")
-                        .description("Description for Test Task 1")
-                        .issue(issue)
-                        .assignee(user)
-                        .taskType(taskType)
-                        .status(OPEN)
-                        .createdAt(now().truncatedTo(MINUTES))
-                        .updatedAt(now().truncatedTo(MINUTES))
-                        .build());
-            });
-        });
+        issues.forEach(issue -> taskTypes.forEach(taskType -> tasks.add(Task.builder()
+                .name("Test Task 1")
+                .description("Description for Test Task 1")
+                .issue(issue)
+                .assignee(user)
+                .taskType(taskType)
+                .status(OPEN)
+                .createdAt(now().truncatedTo(MINUTES))
+                .updatedAt(now().truncatedTo(MINUTES))
+                .build())));
         return tasks;
     }
 }
