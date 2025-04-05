@@ -5,6 +5,7 @@ import com.kajtekh.jirabackend.model.auth.RegisterRequest;
 import com.kajtekh.jirabackend.model.auth.TokenResponse;
 import com.kajtekh.jirabackend.security.TokenCookieBuilder;
 import com.kajtekh.jirabackend.service.AuthService;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -41,5 +42,28 @@ public class AuthController {
                 .header(SET_COOKIE, refreshCookie.toString())
                 .body(service.getTokenPayload(response.accessToken()));
     }
+
+    @PostMapping("/refresh")
+    public ResponseEntity<Void> refresh(HttpServletRequest request) {
+        final var response = service.refresh(request);
+        final var accessToken = tokenCookieBuilder.buildAccessTokenCookie(response.accessToken());
+        final var refreshCookie = tokenCookieBuilder.buildRefreshTokenCookie(response.refreshToken());
+        return ResponseEntity.ok()
+                .header(SET_COOKIE, accessToken.toString())
+                .header(SET_COOKIE, refreshCookie.toString())
+                .build();
+    }
+
+    @PostMapping("/logout")
+    public ResponseEntity<Void> logout(HttpServletRequest request) {
+        service.logout(request);
+        final var accessToken = tokenCookieBuilder.buildExpiredAccessTokenCookie();
+        final var refreshCookie = tokenCookieBuilder.buildExpiredRefreshTokenCookie();
+        return ResponseEntity.ok()
+                .header(SET_COOKIE, accessToken.toString())
+                .header(SET_COOKIE, refreshCookie.toString())
+                .build();
+    }
+
 
 }

@@ -27,4 +27,24 @@ public class TokenCookieBuilder {
                 .maxAge(60 * 15)
                 .build();
     }
+
+    public ResponseCookie buildExpiredAccessTokenCookie() {
+        return ResponseCookie.from(ACCESS_TOKEN_COOKIE, "")
+                .httpOnly(true)
+                .secure(true)
+                .path("/")
+                .sameSite("None")
+                .maxAge(0)
+                .build();
+    }
+
+    public ResponseCookie buildExpiredRefreshTokenCookie() {
+        return ResponseCookie.from(REFRESH_TOKEN_COOKIE, "")
+                .httpOnly(true)
+                .secure(true)
+                .path("/")
+                .sameSite("None")
+                .maxAge(0)
+                .build();
+    }
 }

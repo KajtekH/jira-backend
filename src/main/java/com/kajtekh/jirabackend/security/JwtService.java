@@ -8,11 +8,13 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 import java.nio.charset.StandardCharsets;
 import java.security.Key;
+import java.time.Duration;
 import java.util.Base64;
 import java.util.Date;
 import java.util.HashMap;
@@ -24,13 +26,30 @@ public class JwtService {
 
     private static final String secretKey = "b7a002a04fc471eca942e43d9f8974d2826991ccd165dfa0f940df5598704161";
     private static final long loginTokenExp = 1000L * 60 * 5;
-    private static final long refreshTokenExp = 1000L * 60 * 15;
+    private static final long refreshTokenExp = 1000L * 60 * 60 *24 * 7;
 
     private final ObjectMapper objectMapper;
+    private final RedisTemplate<String, Object> redisTemplate;
 
-    public JwtService(ObjectMapper objectMapper) {
+    public JwtService(ObjectMapper objectMapper, RedisTemplate<String, Object> redisTemplate) {
         this.objectMapper = objectMapper;
+        this.redisTemplate = redisTemplate;
     }
+
+    public String generateToken(User user) {
+        return generateToken(new HashMap<>(), user);
+    }
+
+    public String generateToken(
+            Map<String, Object> extraClaims,
+            User userDetails) {
+        return buildToken(extraClaims, userDetails);
+    }
+
+    public String generateRefreshToken(User user) {
+        return buildRefreshToken(user);
+    }
+
 
     public String extractUsername(String token) {
         return extractClaim(token, Claims::getSubject);
@@ -41,6 +60,16 @@ public class JwtService {
         return claimsResolver.apply(claims);
     }
 
+    public boolean isTokenValid(String token, UserDetails userDetails) {
+        final String username = extractUsername(token);
+        return (username.equals(userDetails.getUsername())) && !isTokenExpired(token);
+    }
+
+    public boolean validateRefreshToken(String username, String refreshToken) {
+        String storedToken = (String) redisTemplate.opsForValue().get("refresh_token:" + username);
+        return storedToken != null && storedToken.equals(refreshToken);
+    }
+
     public TokenResponse getTokenPayload(String token){
         try{
             return objectMapper.readValue(decodeTokenPayload(token), TokenResponse.class);
@@ -48,6 +77,18 @@ public class JwtService {
         catch (Exception e){
             throw new RuntimeException("Failed to decode token payload", e);
         }
+    }
+
+    public void storeRefreshToken(String username, String refreshToken) {
+        redisTemplate.opsForValue().set(
+                "refresh_token:" + username,
+                refreshToken,
+                Duration.ofMillis(refreshTokenExp)
+        );
+    }
+
+    public void revokeRefreshToken(String username) {
+        redisTemplate.delete("refresh_token:" + username);
     }
 
     private byte[] decodeTokenPayload(String token) {
@@ -72,34 +113,20 @@ public class JwtService {
         return Keys.hmacShaKeyFor(keyBytes);
     }
 
-    public String generateToken(User user) {
-        return generateToken(new HashMap<>(), user);
-    }
 
-    public String generateToken(
-            Map<String, Object> extraClaims,
-            User userDetails) {
-        return buildToken(extraClaims, userDetails, loginTokenExp);
-    }
-
-    public String generateRefreshToken(User user) {
-        return buildRefreshToken(user, refreshTokenExp);
-    }
-
-    private String buildRefreshToken(User user, long expiration) {
+    private String buildRefreshToken(User user) {
         return Jwts
                 .builder()
                 .setSubject(user.getUsername())
                 .setIssuedAt(new Date(System.currentTimeMillis()))
-                .setExpiration(new Date(System.currentTimeMillis() + expiration))
+                .setExpiration(new Date(System.currentTimeMillis() + refreshTokenExp))
                 .signWith(getSigningKey(), SignatureAlgorithm.HS256)
                 .compact();
     }
 
     private String buildToken(
             Map<String, Object> extraClaims,
-            User userDetails,
-            long expiration
+            User userDetails
     ) {
         extraClaims.put("email", userDetails.getEmail());
         extraClaims.put("username", userDetails.getUsername());
@@ -109,16 +136,9 @@ public class JwtService {
                 .setClaims(extraClaims)
                 .setSubject(userDetails.getUsername())
                 .setIssuedAt(new Date(System.currentTimeMillis()))
-                .setExpiration(new Date(System.currentTimeMillis() + expiration))
+                .setExpiration(new Date(System.currentTimeMillis() + loginTokenExp))
                 .signWith(getSigningKey(), SignatureAlgorithm.HS256)
                 .compact();
-    }
-
-
-
-    public boolean isTokenValid(String token, UserDetails userDetails) {
-        final String username = extractUsername(token);
-        return (username.equals(userDetails.getUsername())) && !isTokenExpired(token);
     }
 
     private boolean isTokenExpired(String token) {
