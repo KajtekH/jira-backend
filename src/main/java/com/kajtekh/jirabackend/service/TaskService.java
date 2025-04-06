@@ -46,6 +46,7 @@ public class TaskService {
                     task.setIssue(issue);
                     task.setCreatedAt(LocalDateTime.now().truncatedTo(MINUTES));
                     task.setUpdatedAt(LocalDateTime.now().truncatedTo(MINUTES));
+                    task.setPriority(taskRequest.priority());
                 },
                 () -> {
                     throw new IllegalArgumentException("Task type not found");

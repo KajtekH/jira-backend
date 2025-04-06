@@ -33,6 +33,7 @@ public class Task {
 
     private String name;
     private Status status;
+    private int priority;
 
     @Column(columnDefinition = "TEXT")
     private String description;

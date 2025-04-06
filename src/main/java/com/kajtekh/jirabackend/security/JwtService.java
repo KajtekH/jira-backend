@@ -131,6 +131,8 @@ public class JwtService {
         extraClaims.put("email", userDetails.getEmail());
         extraClaims.put("username", userDetails.getUsername());
         extraClaims.put("role", userDetails.getRole().name());
+        extraClaims.put("firstName", userDetails.getFirstName());
+        extraClaims.put("lastName", userDetails.getLastName());
         return Jwts
                 .builder()
                 .setClaims(extraClaims)

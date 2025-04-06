@@ -1,6 +1,7 @@
 package com.kajtekh.jirabackend.controller;
 
 import com.kajtekh.jirabackend.model.auth.AuthenticationRequest;
+import com.kajtekh.jirabackend.model.auth.RefreshResponse;
 import com.kajtekh.jirabackend.model.auth.RegisterRequest;
 import com.kajtekh.jirabackend.model.auth.TokenResponse;
 import com.kajtekh.jirabackend.security.TokenCookieBuilder;
@@ -45,14 +46,14 @@ public class AuthController {
     }
 
     @PostMapping("/refresh")
-    public ResponseEntity<Void> refresh(final HttpServletRequest request) {
+    public ResponseEntity<RefreshResponse> refresh(final HttpServletRequest request) {
         final var response = service.refresh(request);
         final var accessToken = tokenCookieBuilder.buildAccessTokenCookie(response.accessToken());
         final var refreshCookie = tokenCookieBuilder.buildRefreshTokenCookie(response.refreshToken());
         return ResponseEntity.ok()
                 .header(SET_COOKIE, accessToken.toString())
                 .header(SET_COOKIE, refreshCookie.toString())
-                .build();
+                .body(service.getExp(response.accessToken()));
     }
 
     @PostMapping("/logout")

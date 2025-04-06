@@ -23,6 +23,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 import static com.kajtekh.jirabackend.model.Status.OPEN;
 import static com.kajtekh.jirabackend.model.request.RequestType.MAJOR;
@@ -188,6 +189,7 @@ public class DataInitializer {
                 .accountManager(user)
                 .status(OPEN)
                 .requestType(MAJOR)
+                .openDate(now().truncatedTo(MINUTES))
                 .build());
         requests.add(Request.builder()
                 .name("Test Request 2")
@@ -196,6 +198,7 @@ public class DataInitializer {
                 .accountManager(user)
                 .status(OPEN)
                 .requestType(MAJOR)
+                .openDate(now().truncatedTo(MINUTES))
                 .build());
         requests.add(Request.builder()
                 .name("Test Request 3")
@@ -204,6 +207,7 @@ public class DataInitializer {
                 .accountManager(user)
                 .status(OPEN)
                 .requestType(MINOR)
+                .openDate(now().truncatedTo(MINUTES))
                 .build());
         requests.add(Request.builder()
                 .name("Test Request 4")
@@ -212,6 +216,7 @@ public class DataInitializer {
                 .accountManager(user)
                 .status(OPEN)
                 .requestType(PATCH)
+                .openDate(now().truncatedTo(MINUTES))
                 .build());
         return requests;
     }
@@ -268,6 +273,7 @@ public class DataInitializer {
                 .status(OPEN)
                 .createdAt(now().truncatedTo(MINUTES))
                 .updatedAt(now().truncatedTo(MINUTES))
+                .priority(new Random().nextInt(1, 6))
                 .build())));
         return tasks;
     }

@@ -2,6 +2,7 @@ package com.kajtekh.jirabackend.service;
 
 import com.kajtekh.jirabackend.model.auth.AuthenticationRequest;
 import com.kajtekh.jirabackend.model.auth.AuthenticationResponse;
+import com.kajtekh.jirabackend.model.auth.RefreshResponse;
 import com.kajtekh.jirabackend.model.auth.RegisterRequest;
 import com.kajtekh.jirabackend.model.auth.TokenResponse;
 import com.kajtekh.jirabackend.model.user.User;
@@ -108,5 +109,9 @@ public class AuthService {
                 .getValue();
         final var username = jwtService.extractUsername(refreshToken);
         jwtService.revokeRefreshToken(username);
+    }
+
+    public RefreshResponse getExp(final String token) {
+        return new RefreshResponse(jwtService.getTokenPayload(token).exp());
     }
 }
