@@ -6,6 +6,7 @@ import com.kajtekh.jirabackend.model.request.RequestType;
 import com.kajtekh.jirabackend.model.user.User;
 import com.kajtekh.jirabackend.repository.ProductRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -21,10 +22,12 @@ public class ProductService {
         this.productRepository = productRepository;
     }
 
+    @Transactional(readOnly = true)
     public List<Product> getAllProducts() {
         return productRepository.findAll();
     }
 
+    @Transactional
     public Product addProduct(final ProductRequest productRequest, final User owner) {
         final var product = new Product();
         product.setName(productRequest.name());
@@ -34,10 +37,12 @@ public class ProductService {
         return productRepository.save(product);
     }
 
+    @Transactional(readOnly = true)
     public Product getProductById(final Long id) {
         return productRepository.findById(id).orElse(null);
     }
 
+    @Transactional
     public void bumpVersion(final Product product, final RequestType requestType) {
         final var version = product.getVersion().split("\\.");
         final var major = Integer.parseInt(version[0]);

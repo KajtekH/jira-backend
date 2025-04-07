@@ -5,6 +5,7 @@ import com.kajtekh.jirabackend.model.issue.dto.IssueRequest;
 import com.kajtekh.jirabackend.model.issue.dto.IssueResponse;
 import com.kajtekh.jirabackend.service.IssueService;
 import com.kajtekh.jirabackend.service.RequestService;
+import com.kajtekh.jirabackend.service.UpdateNotificationService;
 import com.kajtekh.jirabackend.service.UserService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -28,11 +29,14 @@ public class IssueController {
     private final IssueService issueService;
     private final UserService userService;
     private final RequestService requestService;
+    private final UpdateNotificationService updateNotificationService;
 
-    public IssueController(final IssueService issueService, final UserService userService, final RequestService requestService) {
+    public IssueController(final IssueService issueService, final UserService userService, final RequestService requestService,
+                           final UpdateNotificationService updateNotificationService) {
         this.issueService = issueService;
         this.userService = userService;
         this.requestService = requestService;
+        this.updateNotificationService = updateNotificationService;
     }
 
     @GetMapping("/{id}")
@@ -49,7 +53,9 @@ public class IssueController {
     @PatchMapping("/{id}/{status}")
     @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_PRODUCT_MANAGER')")
     public ResponseEntity<IssueResponse> updateStatus(@PathVariable final Long id, @PathVariable final Status status) {
+        final var issue = issueService.updateStatus(id, status);
         final var issueResponse = fromIssue(issueService.updateStatus(id, status));
+        updateNotificationService.notifyIssueListUpdate(issue.getRequest().getId());
         return ResponseEntity.ok(issueResponse);
     }
 

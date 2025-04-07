@@ -5,6 +5,7 @@ import com.kajtekh.jirabackend.model.request.dto.RequestRequest;
 import com.kajtekh.jirabackend.model.request.dto.RequestResponse;
 import com.kajtekh.jirabackend.service.ProductService;
 import com.kajtekh.jirabackend.service.RequestService;
+import com.kajtekh.jirabackend.service.UpdateNotificationService;
 import com.kajtekh.jirabackend.service.UserService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -29,11 +30,14 @@ public class RequestController {
     private final RequestService requestService;
     private final UserService userService;
     private final ProductService productService;
+    private final UpdateNotificationService updateNotificationService;
 
-    public RequestController(final RequestService requestService, final UserService userService, final ProductService ProductService) {
+    public RequestController(final RequestService requestService, final UserService userService, final ProductService ProductService,
+                             final UpdateNotificationService updateNotificationService) {
         this.requestService = requestService;
         this.userService = userService;
         this.productService = ProductService;
+        this.updateNotificationService = updateNotificationService;
     }
 
 
@@ -54,6 +58,7 @@ public class RequestController {
         final var accountManager = userService.getUserByUsername(requestRequest.accountManager());
         final var product = productService.getProductById(productId);
         final var requestResponse = fromRequest(requestService.addRequest(requestRequest, accountManager, product));
+        updateNotificationService.notifyRequestListUpdate(productId);
         return ResponseEntity.status(CREATED).body(requestResponse);
     }
 
@@ -64,7 +69,9 @@ public class RequestController {
         final var requestResponse = fromRequest(request);
         if (status == CLOSED) {
             productService.bumpVersion(request.getProduct(), request.getRequestType());
+            updateNotificationService.notifyProductListUpdate();
         }
+        updateNotificationService.notifyRequestListUpdate(request.getProduct().getId());
         return ResponseEntity.ok(requestResponse);
     }
 

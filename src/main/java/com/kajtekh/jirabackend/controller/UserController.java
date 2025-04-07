@@ -3,6 +3,7 @@ package com.kajtekh.jirabackend.controller;
 import com.kajtekh.jirabackend.model.user.Role;
 import com.kajtekh.jirabackend.model.user.dto.UserResponse;
 import com.kajtekh.jirabackend.model.user.dto.UserUpdateRequest;
+import com.kajtekh.jirabackend.service.UpdateNotificationService;
 import com.kajtekh.jirabackend.service.UserService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -22,9 +23,11 @@ import java.util.List;
 public class UserController {
 
     private final UserService userService;
+    private final UpdateNotificationService updateNotificationService;
 
-    public UserController(final UserService userService) {
+    public UserController(final UserService userService, final UpdateNotificationService updateNotificationService) {
         this.userService = userService;
+        this.updateNotificationService = updateNotificationService;
     }
 
     @GetMapping
@@ -35,12 +38,14 @@ public class UserController {
     @PatchMapping("/{id}/role")
     public ResponseEntity<Void> updateUserRole(@PathVariable final Long id, @RequestBody final Role role) {
         userService.updateUserRole(id, role);
+        updateNotificationService.notifyUserListUpdate();
         return ResponseEntity.noContent().build();
     }
 
     @PatchMapping("/{id}/active")
     public ResponseEntity<Void> activateUser(@PathVariable final Long id, @RequestBody final boolean active) {
         userService.changeActive(id, active);
+        updateNotificationService.notifyUserListUpdate();
         return ResponseEntity.noContent().build();
     }
 
@@ -48,6 +53,7 @@ public class UserController {
     public ResponseEntity<UserResponse> updateUser(@PathVariable final Long id, @RequestBody final UserUpdateRequest userUpdateRequest) {
         final var user = userService.getUserById(id);
         final var updatedUser = userService.updateUser(user, userUpdateRequest);
+        updateNotificationService.notifyUserListUpdate();
         return ResponseEntity.ok(UserResponse.from(updatedUser));
     }
 

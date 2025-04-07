@@ -20,7 +20,7 @@ import static org.springframework.security.config.Customizer.withDefaults;
 @EnableWebSecurity
 @EnableMethodSecurity
 public class SecurityConfig {
-    private static final String[] WHITE_LIST_URL = {"/api/auth/register", "/api/auth/login"};
+    private static final String[] WHITE_LIST_URL = {"/api/auth/register", "/api/auth/login", "/api/auth/refresh"};
 
     private final AuthenticationProvider authenticationProvider;
     private final JwtAuthenticationFilter jwtAuthFilter;

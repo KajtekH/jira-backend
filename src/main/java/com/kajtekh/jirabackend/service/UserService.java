@@ -8,6 +8,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -24,32 +25,38 @@ public class UserService implements UserDetailsService {
         return userRepository.findByUsername(username).orElse(null);
     }
 
+    @Transactional(readOnly = true)
     public List<User> getAllUsers() {
         return userRepository.findAll();
     }
 
     @Override
+    @Transactional(readOnly = true)
     public UserDetails loadUserByUsername(final String username) throws UsernameNotFoundException {
         return userRepository.findByUsernameOrEmail(username)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found: " + username));
     }
 
+    @Transactional
     public void updateUserRole(final Long id, final Role role) {
         final User user = userRepository.findById(id).orElseThrow(() -> new UsernameNotFoundException("User not found"));
         user.setRole(role);
         userRepository.save(user);
     }
 
+    @Transactional
     public void changeActive(final Long id, final boolean active) {
         final User user = userRepository.findById(id).orElseThrow(() -> new UsernameNotFoundException("User not found"));
         user.setActive(active);
         userRepository.save(user);
     }
 
+    @Transactional(readOnly = true)
     public User getUserById(final Long id) {
         return userRepository.findById(id).orElse(null);
     }
 
+    @Transactional
     public User updateUser(final User user, final UserUpdateRequest userUpdateRequest) {
         user.setUsername(userUpdateRequest.username());
         user.setEmail(userUpdateRequest.email());

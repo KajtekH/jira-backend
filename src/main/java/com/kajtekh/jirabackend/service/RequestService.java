@@ -7,6 +7,7 @@ import com.kajtekh.jirabackend.model.request.dto.RequestRequest;
 import com.kajtekh.jirabackend.model.user.User;
 import com.kajtekh.jirabackend.repository.RequestRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -28,6 +29,7 @@ public class RequestService {
     }
 
 
+    @Transactional(readOnly = true)
     public List<Request> getAllRequests(final Long productId) {
         return requestRepository.findAllByProductId(productId).stream()
                 .sorted((request1, request2) -> {
@@ -36,10 +38,12 @@ public class RequestService {
         }).collect(toList());
     }
 
+    @Transactional(readOnly = true)
     public Request getRequestById(final Long id) {
         return requestRepository.findById(id).orElse(null);
     }
 
+    @Transactional
     public Request addRequest(final RequestRequest requestRequest, final User accountManager, final Product product) {
         final var request = new Request();
         request.setName(requestRequest.name());
@@ -52,6 +56,7 @@ public class RequestService {
         return requestRepository.save(request);
     }
 
+    @Transactional
     public Request updateStatus(final Long id, final Status status) {
         final var request = requestRepository.findById(id).orElseThrow();
         request.setStatus(status);

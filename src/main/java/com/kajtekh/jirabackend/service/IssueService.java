@@ -8,6 +8,7 @@ import com.kajtekh.jirabackend.model.request.Request;
 import com.kajtekh.jirabackend.model.user.User;
 import com.kajtekh.jirabackend.repository.IssueRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -28,6 +29,7 @@ public class IssueService {
         this.issueRepository = issueRepository;
     }
 
+    @Transactional
     public Issue addIssue(final IssueRequest issueRequest, final User productManager, final Request request) {
         final var issue = new Issue();
         issue.setName(issueRequest.name());
@@ -39,10 +41,12 @@ public class IssueService {
         return issueRepository.save(issue);
     }
 
+    @Transactional(readOnly = true)
     public Issue getIssueById(final Long id) {
         return issueRepository.findById(id).orElse(null);
     }
 
+    @Transactional(readOnly = true)
     public List<IssueResponse> getAllIssues(final Long id) {
         return issueRepository.findAllByRequestId(id).stream()
                 .sorted((issue1, issue2) -> {
@@ -53,6 +57,7 @@ public class IssueService {
                 .toList();
     }
 
+    @Transactional
     public Issue updateStatus(final Long id, final Status status) {
         final var issue = issueRepository.findById(id).orElseThrow();
         issue.setStatus(status);

@@ -29,6 +29,7 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-validation")
     implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("org.springframework.boot:spring-boot-starter-data-redis")
+    implementation("org.springframework.boot:spring-boot-starter-websocket")
     implementation("org.postgresql:postgresql:42.7.2")
     implementation("io.jsonwebtoken:jjwt-impl:0.11.5")
     compileOnly("org.projectlombok:lombok")

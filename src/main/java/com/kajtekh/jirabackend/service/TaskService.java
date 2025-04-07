@@ -8,8 +8,8 @@ import com.kajtekh.jirabackend.model.task.dto.TaskResponse;
 import com.kajtekh.jirabackend.model.user.User;
 import com.kajtekh.jirabackend.repository.TaskRepository;
 import com.kajtekh.jirabackend.repository.TaskTypeRepository;
-import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -28,7 +28,7 @@ public class TaskService {
         this.taskTypeRepository = taskTypeRepository;
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     public List<TaskResponse> getAllTasks() {
         return taskRepository.findAll().stream().map(TaskResponse::fromTask).toList();
     }
@@ -55,6 +55,7 @@ public class TaskService {
         return taskRepository.save(task);
     }
 
+    @Transactional
     public Task moveTask(final Long id, final Status taskStatus) {
         final var task = taskRepository.findById(id).orElseThrow();
         task.setStatus(taskStatus);
@@ -63,14 +64,17 @@ public class TaskService {
         return task;
     }
 
+    @Transactional
     public void deleteTask(final Long id) {
         taskRepository.deleteById(id);
     }
 
+    @Transactional(readOnly = true)
     public List<TaskResponse> getTasksByStatus(final Status status, final Long issueId) {
         return taskRepository.findAllByStatusAndIssueId(status, issueId).stream().map(TaskResponse::fromTask).toList();
     }
 
+    @Transactional
     public Task updateTask(final Long id, final TaskRequest taskRequest, final User assignee) {
         final var task = taskRepository.findById(id).orElseThrow();
         final var taskType = taskTypeRepository.findByName(taskRequest.taskType()).orElseThrow();

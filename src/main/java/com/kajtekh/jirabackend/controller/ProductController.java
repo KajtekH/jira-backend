@@ -3,6 +3,7 @@ package com.kajtekh.jirabackend.controller;
 import com.kajtekh.jirabackend.model.product.dto.ProductRequest;
 import com.kajtekh.jirabackend.model.product.dto.ProductResponse;
 import com.kajtekh.jirabackend.service.ProductService;
+import com.kajtekh.jirabackend.service.UpdateNotificationService;
 import com.kajtekh.jirabackend.service.UserService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -24,10 +25,13 @@ public class ProductController {
 
     private final ProductService productService;
     private final UserService userService;
+    private final UpdateNotificationService updateNotificationService;
 
-    public ProductController(final ProductService productService, final UserService userService) {
+    public ProductController(final ProductService productService, final UserService userService,
+                             final UpdateNotificationService updateNotificationService) {
         this.productService = productService;
         this.userService = userService;
+        this.updateNotificationService = updateNotificationService;
     }
 
     @GetMapping
@@ -44,6 +48,7 @@ public class ProductController {
     @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_OWNER')")
     public ResponseEntity<ProductResponse> addProduct(@RequestBody final ProductRequest productRequest) {
         final var owner = userService.getUserByUsername(productRequest.owner());
+        updateNotificationService.notifyProductListUpdate();
         return ResponseEntity.status(CREATED).body(fromProduct(productService.addProduct(productRequest, owner)));
     }
 }

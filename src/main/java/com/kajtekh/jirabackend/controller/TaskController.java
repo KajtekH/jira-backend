@@ -6,6 +6,7 @@ import com.kajtekh.jirabackend.model.task.dto.TaskRequest;
 import com.kajtekh.jirabackend.model.task.dto.TaskResponse;
 import com.kajtekh.jirabackend.service.IssueService;
 import com.kajtekh.jirabackend.service.TaskService;
+import com.kajtekh.jirabackend.service.UpdateNotificationService;
 import com.kajtekh.jirabackend.service.UserService;
 import org.springframework.context.annotation.Profile;
 import org.springframework.http.ResponseEntity;
@@ -32,11 +33,13 @@ public class TaskController {
     private final TaskService taskService;
     private final UserService userService;
     private final IssueService issueService;
+    private final UpdateNotificationService updateNotificationService;
 
-    public TaskController(final TaskService taskService, final UserService userService, final IssueService issueService) {
+    public TaskController(final TaskService taskService, final UserService userService, final IssueService issueService, final UpdateNotificationService updateNotificationService) {
         this.taskService = taskService;
         this.userService = userService;
         this.issueService = issueService;
+        this.updateNotificationService = updateNotificationService;
     }
 
     @GetMapping()
@@ -55,6 +58,7 @@ public class TaskController {
         final var issue = issueService.getIssueById(issueId);
         final var assignee = userService.getUserByUsername(taskRequest.assignee());
         final var taskResponse = fromTask(taskService.addTask(taskRequest, issue, assignee));
+        updateNotificationService.notifyTaskListUpdate(issueId);
         return ResponseEntity.status(CREATED).body(taskResponse);
     }
 
@@ -62,15 +66,17 @@ public class TaskController {
     @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_PRODUCT_MANAGER')")
     public ResponseEntity<TaskResponse> updateTask(@PathVariable final Long id, @RequestBody final TaskRequest taskRequest) {
         final var assignee = userService.getUserByUsername(taskRequest.assignee());
-        final var taskResponse = fromTask(taskService.updateTask(id, taskRequest, assignee));
-        return ResponseEntity.ok(taskResponse);
+        final var task = taskService.updateTask(id, taskRequest, assignee);
+        updateNotificationService.notifyTaskListUpdate(task.getIssue().getId());
+        return ResponseEntity.ok(fromTask(task));
     }
 
     @PatchMapping()
     @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_WORKER')")
     public ResponseEntity<TaskResponse> moveTask(@RequestBody final MoveTaskRequest moveTaskRequest) {
-        final var taskResponse = fromTask(taskService.moveTask(moveTaskRequest.taskId(), moveTaskRequest.status()));
-        return ResponseEntity.ok(taskResponse);
+        final var task = taskService.moveTask(moveTaskRequest.taskId(), moveTaskRequest.status());
+        updateNotificationService.notifyTaskListUpdate(task.getIssue().getId());
+        return ResponseEntity.ok(fromTask(task));
     }
 
     @Profile("test")
