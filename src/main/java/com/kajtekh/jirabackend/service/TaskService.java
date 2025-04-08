@@ -8,6 +8,8 @@ import com.kajtekh.jirabackend.model.task.dto.TaskResponse;
 import com.kajtekh.jirabackend.model.user.User;
 import com.kajtekh.jirabackend.repository.TaskRepository;
 import com.kajtekh.jirabackend.repository.TaskTypeRepository;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,11 +23,13 @@ public class TaskService {
 
     private final TaskRepository taskRepository;
     private final TaskTypeRepository taskTypeRepository;
+    private final CacheService cacheService;
 
 
-    public TaskService(final TaskRepository taskRepository, final TaskTypeRepository taskTypeRepository) {
+    public TaskService(final TaskRepository taskRepository, final TaskTypeRepository taskTypeRepository, final CacheService cacheService) {
         this.taskRepository = taskRepository;
         this.taskTypeRepository = taskTypeRepository;
+        this.cacheService = cacheService;
     }
 
     @Transactional(readOnly = true)
@@ -56,11 +60,17 @@ public class TaskService {
     }
 
     @Transactional
+    @Caching(evict = {
+            @CacheEvict(value = "tasksByStatus", key = "T(String).valueOf(#task.issue.id) + #task.status.name()"),
+            @CacheEvict(value = "tasksByStatus", key = "T(String).valueOf(#task.issue.id) + #oldStatus.name()")
+    })
     public Task moveTask(final Long id, final Status taskStatus) {
         final var task = taskRepository.findById(id).orElseThrow();
+        final var oldStatus = task.getStatus();
         task.setStatus(taskStatus);
         task.setUpdatedAt(LocalDateTime.now().truncatedTo(MINUTES));
         taskRepository.save(task);
+        cacheService.evictCacheOnMoveTask(task, oldStatus);
         return task;
     }
 

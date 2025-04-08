@@ -8,6 +8,9 @@ import com.kajtekh.jirabackend.service.IssueService;
 import com.kajtekh.jirabackend.service.TaskService;
 import com.kajtekh.jirabackend.service.UpdateNotificationService;
 import com.kajtekh.jirabackend.service.UserService;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.context.annotation.Profile;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -43,11 +46,13 @@ public class TaskController {
     }
 
     @GetMapping()
+    @Cacheable(value = "allTasks")
     public List<TaskResponse> getAllTasks() {
         return taskService.getAllTasks();
     }
 
     @GetMapping("/{issueId}/{status}")
+    @Cacheable(value = "tasksByStatus", key = "T(String).valueOf(#issueId) + T(String).valueOf(#status)")
     public List<TaskResponse> getTasksByStatus(@PathVariable final Status status, @PathVariable final Long issueId) {
         return taskService.getTasksByStatus(status, issueId);
     }

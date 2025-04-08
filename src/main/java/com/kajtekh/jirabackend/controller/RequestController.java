@@ -7,6 +7,7 @@ import com.kajtekh.jirabackend.service.ProductService;
 import com.kajtekh.jirabackend.service.RequestService;
 import com.kajtekh.jirabackend.service.UpdateNotificationService;
 import com.kajtekh.jirabackend.service.UserService;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -43,12 +44,12 @@ public class RequestController {
 
     @GetMapping("/{productId}")
     public ResponseEntity<List<RequestResponse>> getAllRequests(@PathVariable final Long productId) {
-        return ResponseEntity.ok(requestService.getAllRequests(productId).stream().map(RequestResponse::fromRequest).toList());
+        return ResponseEntity.ok(requestService.getAllRequests(productId));
     }
 
     @GetMapping("/request/{id}")
     public ResponseEntity<RequestResponse> getRequestById(@PathVariable final Long id) {
-        final var requestResponse = fromRequest(requestService.getRequestById(id));
+        final var requestResponse = requestService.getRequestResponseById(id);
         return ResponseEntity.ok(requestResponse);
     }
 

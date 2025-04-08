@@ -3,11 +3,12 @@ package com.kajtekh.jirabackend.model.issue.dto;
 import com.kajtekh.jirabackend.model.Status;
 import com.kajtekh.jirabackend.model.issue.Issue;
 
+import java.io.Serializable;
 import java.util.Optional;
 
 import static com.kajtekh.jirabackend.model.Status.CLOSED;
 
-public record IssueResponse(Long id, String name, String description, String openDate, String closeDate, Status status, String productManager, int tasksCount, int doneTasksCount) {
+public record IssueResponse(Long id, String name, String description, String openDate, String closeDate, Status status, String productManager, int tasksCount, int doneTasksCount) implements Serializable {
     public static IssueResponse fromIssue(final Issue issue) {
         return new IssueResponse(
                 issue.getId(),

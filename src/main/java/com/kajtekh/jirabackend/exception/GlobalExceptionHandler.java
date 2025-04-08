@@ -22,13 +22,13 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     }
 
 
-    @ExceptionHandler(Exception.class)
-    @ResponseBody
-    public ResponseEntity<Object> handleAllOtherErrors(final Exception exception) {
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .contentType(MediaType.APPLICATION_JSON)
-                .body(new ErrorResponse(exception.getMessage()));
-    }
+//    @ExceptionHandler(Exception.class)
+//    @ResponseBody
+//    public ResponseEntity<Object> handleAllOtherErrors(final Exception exception) {
+//        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+//                .contentType(MediaType.APPLICATION_JSON)
+//                .body(new ErrorResponse(exception.getMessage()));
+//    }
 
 
 }

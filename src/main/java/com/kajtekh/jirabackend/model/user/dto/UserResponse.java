@@ -3,7 +3,9 @@ package com.kajtekh.jirabackend.model.user.dto;
 import com.kajtekh.jirabackend.model.user.User;
 import lombok.NonNull;
 
-public record UserResponse(Long id, @NonNull String username, @NonNull String email, String firstName, String lastName, boolean isActive) {
+import java.io.Serializable;
+
+public record UserResponse(Long id, @NonNull String username, @NonNull String email, String firstName, String lastName, boolean isActive) implements Serializable {
 
     public static UserResponse from(final User user) {
         return new UserResponse(

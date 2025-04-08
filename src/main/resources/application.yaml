@@ -1,4 +1,8 @@
 spring:
+  cache:
+    type: redis
+    redis:
+      time-to-live: 60000
   application:
     name: my-app
   datasource:

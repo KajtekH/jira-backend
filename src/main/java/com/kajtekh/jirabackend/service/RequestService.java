@@ -4,8 +4,10 @@ import com.kajtekh.jirabackend.model.Status;
 import com.kajtekh.jirabackend.model.product.Product;
 import com.kajtekh.jirabackend.model.request.Request;
 import com.kajtekh.jirabackend.model.request.dto.RequestRequest;
+import com.kajtekh.jirabackend.model.request.dto.RequestResponse;
 import com.kajtekh.jirabackend.model.user.User;
 import com.kajtekh.jirabackend.repository.RequestRepository;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -30,17 +32,27 @@ public class RequestService {
 
 
     @Transactional(readOnly = true)
-    public List<Request> getAllRequests(final Long productId) {
+    @Cacheable(value = "requests", key = "#productId")
+    public List<RequestResponse> getAllRequests(final Long productId) {
         return requestRepository.findAllByProductId(productId).stream()
                 .sorted((request1, request2) -> {
             final List<Status> order = List.of(OPEN,IN_PROGRESS, CLOSED, ABANDONED);
             return Integer.compare(order.indexOf(request1.getStatus()), order.indexOf(request2.getStatus()));
-        }).collect(toList());
+        })
+                .map(RequestResponse::fromRequest)
+                .collect(toList());
     }
 
     @Transactional(readOnly = true)
     public Request getRequestById(final Long id) {
         return requestRepository.findById(id).orElse(null);
+    }
+
+    @Transactional(readOnly = true)
+    public RequestResponse getRequestResponseById(final Long id) {
+        return requestRepository.findById(id)
+                .map(RequestResponse::fromRequest)
+                .orElse(null);
     }
 
     @Transactional
