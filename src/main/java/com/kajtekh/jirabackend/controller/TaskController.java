@@ -2,12 +2,15 @@ package com.kajtekh.jirabackend.controller;
 
 import com.kajtekh.jirabackend.model.Status;
 import com.kajtekh.jirabackend.model.task.dto.MoveTaskRequest;
+import com.kajtekh.jirabackend.model.task.dto.TaskListResponse;
 import com.kajtekh.jirabackend.model.task.dto.TaskRequest;
 import com.kajtekh.jirabackend.model.task.dto.TaskResponse;
 import com.kajtekh.jirabackend.service.IssueService;
 import com.kajtekh.jirabackend.service.TaskService;
 import com.kajtekh.jirabackend.service.UpdateNotificationService;
 import com.kajtekh.jirabackend.service.UserService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.cache.annotation.Caching;
@@ -32,6 +35,7 @@ import static org.springframework.http.HttpStatus.CREATED;
 @RestController
 @RequestMapping("/api/tasks")
 public class TaskController {
+    private static final Logger LOG = LoggerFactory.getLogger(TaskController.class);
 
     private final TaskService taskService;
     private final UserService userService;
@@ -51,8 +55,16 @@ public class TaskController {
         return taskService.getAllTasks();
     }
 
+    @GetMapping("/{issueId}")
+    public ResponseEntity<TaskListResponse> getAllTasksByIssue(@PathVariable final Long issueId) {
+        LOG.info("Fetching all tasks for issue with ID: {}", issueId);
+        final var tasks = taskService.getAllTasksByIssue(issueId);
+        LOG.info("Tasks for return: {}", tasks);
+        return ResponseEntity.ok(tasks);
+    }
+
     @GetMapping("/{issueId}/{status}")
-    @Cacheable(value = "tasksByStatus", key = "T(String).valueOf(#issueId) + T(String).valueOf(#status)")
+    //@Cacheable(value = "tasksByStatus", key = "T(String).valueOf(#issueId) + T(String).valueOf(#status)")
     public List<TaskResponse> getTasksByStatus(@PathVariable final Status status, @PathVariable final Long issueId) {
         return taskService.getTasksByStatus(status, issueId);
     }

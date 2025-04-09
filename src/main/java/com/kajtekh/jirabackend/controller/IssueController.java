@@ -54,9 +54,8 @@ public class IssueController {
     @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_PRODUCT_MANAGER')")
     public ResponseEntity<IssueResponse> updateStatus(@PathVariable final Long id, @PathVariable final Status status) {
         final var issue = issueService.updateStatus(id, status);
-        final var issueResponse = fromIssue(issueService.updateStatus(id, status));
         updateNotificationService.notifyIssueListUpdate(issue.getRequest().getId());
-        return ResponseEntity.ok(issueResponse);
+        return ResponseEntity.ok(fromIssue(issue));
     }
 
     @PostMapping("/{requestId}")
