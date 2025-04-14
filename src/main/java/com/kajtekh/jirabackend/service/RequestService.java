@@ -7,6 +7,8 @@ import com.kajtekh.jirabackend.model.request.dto.RequestRequest;
 import com.kajtekh.jirabackend.model.request.dto.RequestResponse;
 import com.kajtekh.jirabackend.model.user.User;
 import com.kajtekh.jirabackend.repository.RequestRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,6 +25,7 @@ import static java.util.stream.Collectors.toList;
 
 @Service
 public class RequestService {
+    private static final Logger LOG = LoggerFactory.getLogger(RequestService.class);
 
     private final RequestRepository requestRepository;
 
@@ -32,11 +35,11 @@ public class RequestService {
 
 
     @Transactional(readOnly = true)
-    @Cacheable(value = "requests", key = "#productId")
     public List<RequestResponse> getAllRequests(final Long productId) {
         return requestRepository.findAllByProductId(productId).stream()
                 .sorted((request1, request2) -> {
             final List<Status> order = List.of(OPEN,IN_PROGRESS, CLOSED, ABANDONED);
+            LOG.info("Sorted list {}", order);
             return Integer.compare(order.indexOf(request1.getStatus()), order.indexOf(request2.getStatus()));
         })
                 .map(RequestResponse::fromRequest)

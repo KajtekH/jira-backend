@@ -46,8 +46,11 @@ public class AuthService {
         final var user = User.builder()
                 .username(request.username())
                 .email(request.email())
+                .firstName(request.firstName())
+                .lastName(request.lastName())
                 .role(USER)
                 .password(passwordEncoder.encode(request.password()))
+                .isActive(true)
                 .build();
         userRepository.save(user);
         final var accessToken = jwtService.generateToken(user);
