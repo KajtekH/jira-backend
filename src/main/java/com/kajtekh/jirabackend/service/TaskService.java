@@ -33,7 +33,6 @@ public class TaskService {
 
     @Transactional
     public Task addTask(final TaskRequest taskRequest, final Issue issue, final User assignee) {
-        LOG.info("Adding a new task with name: {}", taskRequest.name());
         final var task = new Task();
         taskTypeRepository.findByName(taskRequest.type()).ifPresentOrElse(
                 taskType -> {
@@ -48,32 +47,30 @@ public class TaskService {
                     task.setPriority(taskRequest.priority());
                 },
                 () -> {
-                    LOG.error("Task type not found: {}", taskRequest.type());
+                    LOG.warn("Task type not found: {}", taskRequest.type());
                     throw new IllegalArgumentException("Task type not found");
                 }
         );
-        LOG.info("Task added successfully: {}", task.getName());
+        LOG.debug("Task added successfully: {}", task.getName());
         return taskRepository.save(task);
     }
 
     @Transactional
     public Task moveTask(final Long id, final Status taskStatus) {
-        LOG.info("Moving task with ID: {} to status: {}", id, taskStatus);
         final var task = taskRepository.findById(id).orElseThrow(() -> {
-            LOG.error("Task not found with ID: {}", id);
+            LOG.warn("Task not found with ID: {}", id);
             return new IllegalArgumentException("Task not found");
         });
         final var oldStatus = task.getStatus();
         task.setStatus(taskStatus);
         task.setUpdatedAt(LocalDateTime.now().truncatedTo(MINUTES));
         taskRepository.save(task);
-        LOG.info("Task with ID: {} moved from {} to {}", id, oldStatus, taskStatus);
+        LOG.debug("Task with ID: {} moved from {} to {}", id, oldStatus, taskStatus);
         return task;
     }
 
     @Transactional(readOnly = true)
     public TaskListResponse getAllTasksByIssue(final Long issueId) {
-        LOG.info("Fetching all tasks for issue ID: {}", issueId);
         final var tasks = taskRepository.findAllByIssueId(issueId).stream().map(TaskResponse::fromTask).toList();
         final var inProgressTasks = tasks.stream()
                 .filter(task -> task.status().equals(Status.IN_PROGRESS.name()))
@@ -87,7 +84,7 @@ public class TaskService {
         final var abandonedTasks = tasks.stream()
                 .filter(task -> task.status().equals(Status.ABANDONED.name()))
                 .toList();
-        LOG.info("Tasks fetched for issue ID: {} - Open: {}, In Progress: {}, Closed: {}, Abandoned: {}",
+        LOG.debug("Tasks fetched for issue ID: {} - Open: {}, In Progress: {}, Closed: {}, Abandoned: {}",
                 issueId, openTasks.size(), inProgressTasks.size(), closedTasks.size(), abandonedTasks.size());
         return new TaskListResponse(
                 openTasks,
@@ -99,13 +96,12 @@ public class TaskService {
 
     @Transactional
     public Task updateTask(final Long id, final TaskRequest taskRequest, final User assignee) {
-        LOG.info("Updating task with ID: {}", id);
         final var task = taskRepository.findById(id).orElseThrow(() -> {
-            LOG.error("Task not found with ID: {}", id);
+            LOG.warn("Task not found with ID: {}", id);
             return new IllegalArgumentException("Task not found");
         });
         final var taskType = taskTypeRepository.findByName(taskRequest.type()).orElseThrow(() -> {
-            LOG.error("Task type not found: {}", taskRequest.type());
+            LOG.warn("Task type not found: {}", taskRequest.type());
             return new IllegalArgumentException("Task type not found");
         });
         task.setName(taskRequest.name());
@@ -114,7 +110,7 @@ public class TaskService {
         task.setAssignee(assignee);
         task.setUpdatedAt(LocalDateTime.now().truncatedTo(MINUTES));
         taskRepository.save(task);
-        LOG.info("Task with ID: {} updated successfully", id);
+        LOG.debug("Task with ID: {} updated successfully", id);
         return task;
     }
 }
