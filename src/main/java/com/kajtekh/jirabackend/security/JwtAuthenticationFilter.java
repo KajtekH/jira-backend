@@ -9,8 +9,10 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.NonNull;
+import org.springframework.cache.Cache;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -24,10 +26,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     public final JwtService jwtService;
     private final UserService userService;
+    private final Cache cache;
 
-    public JwtAuthenticationFilter(final JwtService jwtService, final UserService userService) {
+    public JwtAuthenticationFilter(final JwtService jwtService, final UserService userService, final Cache cache) {
         this.jwtService = jwtService;
         this.userService = userService;
+        this.cache = cache;
     }
 
     @Override
@@ -40,7 +44,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         }
         try {
             final var userName = jwtService.extractUsername(jwt);
-            final var userDetails = userService.loadUserByUsername(userName);
+            final var userDetails = (UserDetails) cache.get(userName, () -> userService.loadUserByUsername(userName));
+            if (userDetails == null) {
+                filterChain.doFilter(request, response);
+                return;
+            }
             if (jwtService.isTokenValid(jwt, userDetails)) {
                 final var authToken = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
                 authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));

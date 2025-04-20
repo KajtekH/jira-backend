@@ -1,5 +1,6 @@
 package com.kajtekh.jirabackend.controller;
 
+import com.kajtekh.jirabackend.facade.IssueFacade;
 import com.kajtekh.jirabackend.model.Status;
 import com.kajtekh.jirabackend.model.issue.dto.IssueRequest;
 import com.kajtekh.jirabackend.model.issue.dto.IssueResponse;
@@ -26,44 +27,35 @@ import static org.springframework.http.HttpStatus.CREATED;
 @RequestMapping("/api/issues")
 public class IssueController {
 
-    private final IssueService issueService;
-    private final UserService userService;
-    private final RequestService requestService;
-    private final UpdateNotificationService updateNotificationService;
+    private final IssueFacade issueFacade;
 
-    public IssueController(final IssueService issueService, final UserService userService, final RequestService requestService,
-                           final UpdateNotificationService updateNotificationService) {
-        this.issueService = issueService;
-        this.userService = userService;
-        this.requestService = requestService;
-        this.updateNotificationService = updateNotificationService;
+    public IssueController(final IssueFacade issueFacade) {
+        this.issueFacade = issueFacade;
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<List<IssueResponse>> getAllIssues(@PathVariable final Long id) {
-        return ResponseEntity.ok(issueService.getAllIssues(id));
+        final var issues = issueFacade.getAllIssues(id);
+        return ResponseEntity.ok(issues);
     }
 
     @GetMapping("issue/{id}")
     public ResponseEntity<IssueResponse> getIssueById(@PathVariable final Long id) {
-        final var issueResponse = fromIssue(issueService.getIssueById(id));
+        final var issueResponse = issueFacade.getIssueById(id);
         return ResponseEntity.ok(issueResponse);
     }
 
     @PatchMapping("/{id}/{status}")
     @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_PRODUCT_MANAGER')")
     public ResponseEntity<IssueResponse> updateStatus(@PathVariable final Long id, @PathVariable final Status status) {
-        final var issue = issueService.updateStatus(id, status);
-        updateNotificationService.notifyIssueListUpdate(issue.getRequest().getId());
-        return ResponseEntity.ok(fromIssue(issue));
+        final var issueResponse = issueFacade.updateStatus(id, status);
+        return ResponseEntity.ok(issueResponse);
     }
 
     @PostMapping("/{requestId}")
     @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_ACCOUNT_MANAGER')")
     public ResponseEntity<IssueResponse> addIssue(@RequestBody final IssueRequest issueRequest, @PathVariable final Long requestId) {
-        final var productManager = userService.getUserByUsername(issueRequest.productManager());
-        final var request = requestService.getRequestById(requestId);
-        final var issueResponse = fromIssue(issueService.addIssue(issueRequest, productManager, request));
+        final var issueResponse = issueFacade.addIssue(issueRequest, requestId);
         return ResponseEntity.status(CREATED).body(issueResponse);
     }
 

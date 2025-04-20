@@ -1,4 +1,4 @@
-package com.kajtekh.jirabackend.service;
+package com.kajtekh.jirabackend.facade;
 
 import com.kajtekh.jirabackend.model.auth.AuthenticationRequest;
 import com.kajtekh.jirabackend.model.auth.AuthenticationResponse;
@@ -8,10 +8,12 @@ import com.kajtekh.jirabackend.model.auth.TokenResponse;
 import com.kajtekh.jirabackend.model.user.User;
 import com.kajtekh.jirabackend.repository.UserRepository;
 import com.kajtekh.jirabackend.security.JwtService;
+import com.kajtekh.jirabackend.service.UserService;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.cache.Cache;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -23,21 +25,23 @@ import static com.kajtekh.jirabackend.model.user.Role.USER;
 import static com.kajtekh.jirabackend.security.TokenCookieBuilder.REFRESH_TOKEN_COOKIE;
 
 @Service
-public class AuthService {
+public class AuthFacade {
 
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
-    private final UserRepository userRepository;
+    private final UserService userService;
     private final AuthenticationManager authenticationManager;
+    private final Cache cache;
 
-    public AuthService(final PasswordEncoder passwordEncoder, final JwtService jwtService, final UserRepository userRepository, final AuthenticationManager authenticationManager) {
+    public AuthFacade(final PasswordEncoder passwordEncoder, final JwtService jwtService, final UserService userService, final AuthenticationManager authenticationManager, final Cache cache) {
         this.passwordEncoder = passwordEncoder;
         this.jwtService = jwtService;
-        this.userRepository = userRepository;
+        this.userService = userService;
         this.authenticationManager = authenticationManager;
+        this.cache = cache;
     }
 
-    private static final Logger logger = LoggerFactory.getLogger(AuthService.class);
+    private static final Logger logger = LoggerFactory.getLogger(AuthFacade.class);
 
 
     public AuthenticationResponse register(final RegisterRequest request) {
@@ -52,7 +56,7 @@ public class AuthService {
                 .password(passwordEncoder.encode(request.password()))
                 .isActive(true)
                 .build();
-        userRepository.save(user);
+        userService.save(user);
         final var accessToken = jwtService.generateToken(user);
         final var refreshToken = jwtService.generateRefreshToken(user);
         return new AuthenticationResponse(accessToken, refreshToken);
@@ -62,7 +66,10 @@ public class AuthService {
         authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(request.email(), request.password())
         );
-        final var user = userRepository.findByUsernameOrEmail(request.email()).orElseThrow();
+        final var user = cache.get(request.email(), () -> userService.getUserByUsernameOrEmail(request.email()));
+        if (user == null) {
+            throw new RuntimeException("User not found");
+        }
         final var accessToken = jwtService.generateToken(user);
         final var refreshToken = jwtService.generateRefreshToken(user);
         jwtService.storeRefreshToken(user.getUsername(), refreshToken);
@@ -85,9 +92,10 @@ public class AuthService {
             throw new RuntimeException("Invalid refresh token");
         }
 
-        final var user = userRepository.findByUsernameOrEmail(username)
-                .orElseThrow(() -> new RuntimeException("User not found"));
-
+        final var user = cache.get(username, () -> userService.getUserByUsernameOrEmail(username));
+        if (user == null) {
+            throw new RuntimeException("User not found");
+        }
         final var accessToken = jwtService.generateToken(user);
         final var newRefreshToken = jwtService.generateRefreshToken(user);
 
@@ -111,6 +119,7 @@ public class AuthService {
                 .orElseThrow(() -> new RuntimeException("Refresh token not found"))
                 .getValue();
         final var username = jwtService.extractUsername(refreshToken);
+        cache.evict(username);
         jwtService.revokeRefreshToken(username);
     }
 

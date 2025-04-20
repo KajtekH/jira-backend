@@ -1,6 +1,7 @@
 package com.kajtekh.jirabackend.model.user;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.kajtekh.jirabackend.model.issue.Issue;
 import com.kajtekh.jirabackend.model.product.Product;
 import com.kajtekh.jirabackend.model.request.Request;
@@ -35,6 +36,7 @@ import java.util.Set;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class User implements UserDetails, Serializable {
 
     @Id
@@ -59,6 +61,7 @@ public class User implements UserDetails, Serializable {
     @Enumerated(EnumType.STRING)
     private Role role;
 
+    @JsonIgnore
     private boolean isActive;
 
     @JsonIgnore
@@ -78,6 +81,7 @@ public class User implements UserDetails, Serializable {
     private List<Task> tasks = Collections.emptyList();
 
     @Override
+    @JsonIgnore
     public Collection<? extends GrantedAuthority> getAuthorities() {
        return Set.of(new SimpleGrantedAuthority("ROLE_" + role.name()));
     }

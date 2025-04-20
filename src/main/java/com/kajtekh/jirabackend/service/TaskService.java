@@ -26,12 +26,10 @@ public class TaskService {
 
     private final TaskRepository taskRepository;
     private final TaskTypeRepository taskTypeRepository;
-    private final CacheService cacheService;
 
-    public TaskService(final TaskRepository taskRepository, final TaskTypeRepository taskTypeRepository, final CacheService cacheService) {
+    public TaskService(final TaskRepository taskRepository, final TaskTypeRepository taskTypeRepository) {
         this.taskRepository = taskRepository;
         this.taskTypeRepository = taskTypeRepository;
-        this.cacheService = cacheService;
     }
 
     @Transactional(readOnly = true)
@@ -76,7 +74,6 @@ public class TaskService {
         task.setStatus(taskStatus);
         task.setUpdatedAt(LocalDateTime.now().truncatedTo(MINUTES));
         taskRepository.save(task);
-        cacheService.evictCacheOnMoveTask(task.getIssue().getId(), oldStatus, taskStatus);
         LOG.info("Task with ID: {} moved from {} to {}", id, oldStatus, taskStatus);
         return task;
     }

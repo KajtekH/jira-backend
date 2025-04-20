@@ -1,5 +1,6 @@
 package com.kajtekh.jirabackend.controller;
 
+import com.kajtekh.jirabackend.facade.UserFacade;
 import com.kajtekh.jirabackend.model.user.Role;
 import com.kajtekh.jirabackend.model.user.dto.UserResponse;
 import com.kajtekh.jirabackend.model.user.dto.UserUpdateRequest;
@@ -22,39 +23,33 @@ import java.util.List;
 @PreAuthorize("hasRole('ROLE_ADMIN')")
 public class UserController {
 
-    private final UserService userService;
-    private final UpdateNotificationService updateNotificationService;
+    private final UserFacade userFacade;
 
-    public UserController(final UserService userService, final UpdateNotificationService updateNotificationService) {
-        this.userService = userService;
-        this.updateNotificationService = updateNotificationService;
+    public UserController(final UserFacade userFacade) {
+        this.userFacade = userFacade;
     }
 
     @GetMapping
     public ResponseEntity<List<UserResponse>> getAllUsers() {
-        return ResponseEntity.ok(userService.getAllUsers().stream().map(UserResponse::from).toList());
+        return ResponseEntity.ok(userFacade.getAllUsers());
     }
 
     @PatchMapping("/{id}/role")
     public ResponseEntity<Void> updateUserRole(@PathVariable final Long id, @RequestBody final Role role) {
-        userService.updateUserRole(id, role);
-        updateNotificationService.notifyUserListUpdate();
+        userFacade.updateUserRole(id, role);
         return ResponseEntity.noContent().build();
     }
 
     @PatchMapping("/{id}/active")
     public ResponseEntity<Void> activateUser(@PathVariable final Long id, @RequestBody final boolean active) {
-        userService.changeActive(id, active);
-        updateNotificationService.notifyUserListUpdate();
+        userFacade.activateUser(id, active);
         return ResponseEntity.noContent().build();
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<UserResponse> updateUser(@PathVariable final Long id, @RequestBody final UserUpdateRequest userUpdateRequest) {
-        final var user = userService.getUserById(id);
-        final var updatedUser = userService.updateUser(user, userUpdateRequest);
-        updateNotificationService.notifyUserListUpdate();
-        return ResponseEntity.ok(UserResponse.from(updatedUser));
+     final var updatedUser = userFacade.updateUser(id, userUpdateRequest);
+        return ResponseEntity.ok(updatedUser);
     }
 
 }

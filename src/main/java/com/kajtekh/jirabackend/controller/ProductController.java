@@ -1,5 +1,6 @@
 package com.kajtekh.jirabackend.controller;
 
+import com.kajtekh.jirabackend.facade.ProductFacade;
 import com.kajtekh.jirabackend.model.product.dto.ProductRequest;
 import com.kajtekh.jirabackend.model.product.dto.ProductResponse;
 import com.kajtekh.jirabackend.service.ProductService;
@@ -23,32 +24,26 @@ import static org.springframework.http.HttpStatus.CREATED;
 @RequestMapping("/api/products")
 public class ProductController {
 
-    private final ProductService productService;
-    private final UserService userService;
-    private final UpdateNotificationService updateNotificationService;
+    private final ProductFacade productFacade;
 
-    public ProductController(final ProductService productService, final UserService userService,
-                             final UpdateNotificationService updateNotificationService) {
-        this.productService = productService;
-        this.userService = userService;
-        this.updateNotificationService = updateNotificationService;
+    public ProductController(final ProductFacade productFacade) {
+        this.productFacade = productFacade;
     }
 
     @GetMapping
     public ResponseEntity<List<ProductResponse>> getAllProducts() {
-        return ResponseEntity.ok(productService.getAllProducts().stream().map(ProductResponse::fromProduct).toList());
+        return ResponseEntity.ok(productFacade.getAllProducts());
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<ProductResponse> getProductById(@PathVariable final Long id) {
-        return ResponseEntity.ok(fromProduct(productService.getProductById(id)));
+        return ResponseEntity.ok(productFacade.getProductById(id));
     }
 
     @PostMapping
     @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_OWNER')")
     public ResponseEntity<ProductResponse> addProduct(@RequestBody final ProductRequest productRequest) {
-        final var owner = userService.getUserByUsername(productRequest.owner());
-        updateNotificationService.notifyProductListUpdate();
-        return ResponseEntity.status(CREATED).body(fromProduct(productService.addProduct(productRequest, owner)));
+        final var productResponse = productFacade.addProduct(productRequest);
+        return ResponseEntity.status(CREATED).body(productResponse);
     }
 }

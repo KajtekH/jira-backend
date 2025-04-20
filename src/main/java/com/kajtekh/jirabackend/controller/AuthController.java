@@ -5,7 +5,7 @@ import com.kajtekh.jirabackend.model.auth.RefreshResponse;
 import com.kajtekh.jirabackend.model.auth.RegisterRequest;
 import com.kajtekh.jirabackend.model.auth.TokenResponse;
 import com.kajtekh.jirabackend.security.TokenCookieBuilder;
-import com.kajtekh.jirabackend.service.AuthService;
+import com.kajtekh.jirabackend.facade.AuthFacade;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -18,10 +18,10 @@ import static org.springframework.http.HttpHeaders.SET_COOKIE;
 @RestController
 @RequestMapping("/api/auth")
 public class AuthController {
-    private final AuthService service;
+    private final AuthFacade service;
     private final TokenCookieBuilder tokenCookieBuilder;
 
-    public AuthController(final AuthService service, final TokenCookieBuilder tokenCookieBuilder) {
+    public AuthController(final AuthFacade service, final TokenCookieBuilder tokenCookieBuilder) {
         this.service = service;
         this.tokenCookieBuilder = tokenCookieBuilder;
     }

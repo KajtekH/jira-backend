@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Objects;
 
 @Service
 public class UserService implements UserDetailsService {
@@ -37,18 +38,24 @@ public class UserService implements UserDetailsService {
                 .orElseThrow(() -> new UsernameNotFoundException("User not found: " + username));
     }
 
-    @Transactional
-    public void updateUserRole(final Long id, final Role role) {
-        final User user = userRepository.findById(id).orElseThrow(() -> new UsernameNotFoundException("User not found"));
-        user.setRole(role);
-        userRepository.save(user);
+    @Transactional(readOnly = true)
+    public User getUserByUsernameOrEmail(final String username) {
+        return userRepository.findByUsernameOrEmail(username)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found: " + username));
     }
 
     @Transactional
-    public void changeActive(final Long id, final boolean active) {
+    public User updateUserRole(final Long id, final Role role) {
+        final User user = userRepository.findById(id).orElseThrow(() -> new UsernameNotFoundException("User not found"));
+        user.setRole(role);
+        return userRepository.save(user);
+    }
+
+    @Transactional
+    public User changeActive(final Long id, final boolean active) {
         final User user = userRepository.findById(id).orElseThrow(() -> new UsernameNotFoundException("User not found"));
         user.setActive(active);
-        userRepository.save(user);
+        return userRepository.save(user);
     }
 
     @Transactional(readOnly = true)
@@ -63,5 +70,10 @@ public class UserService implements UserDetailsService {
         user.setFirstName(userUpdateRequest.firstName());
         user.setLastName(userUpdateRequest.lastName());
         return userRepository.save(user);
+    }
+
+    @Transactional
+    public void save(final User user) {
+        userRepository.save(user);
     }
 }
