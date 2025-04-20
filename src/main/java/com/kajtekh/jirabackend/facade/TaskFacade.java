@@ -19,6 +19,7 @@ import org.springframework.stereotype.Service;
 public class TaskFacade {
     private static final Logger LOG = LoggerFactory.getLogger(TaskFacade.class);
     private static final String CACHE_EVICTED_MSG = "Cache evicted for key: tasks{}";
+    private static final String TASKS_CACHE_KEY = "tasks";
 
     private final TaskService taskService;
     private final UserService userService;
@@ -37,36 +38,37 @@ public class TaskFacade {
     @Cacheable(value = "data", key = "'tasks' + #issueId")
     @Caching()
     public TaskListResponse getAllTasksByIssue(final Long issueId) {
-        LOG.info("Fetching all tasks for issue with ID: {}", issueId);
-        return taskService.getAllTasksByIssue(issueId);
+        final var taskListResponse = taskService.getAllTasksByIssue(issueId);
+        LOG.debug("Fetching all tasks for issue with ID: '{}' {}", issueId, taskListResponse);
+        return taskListResponse;
     }
 
     public TaskResponse addTask(final TaskRequest taskRequest, final Long issueId) {
-        LOG.info("Adding task for issueId: {} with request: {}", issueId, taskRequest);
+        LOG.debug("Adding task for issue with ID: '{}' with request: {}", issueId, taskRequest);
         final var issue = issueService.getIssueById(issueId);
         final var assignee = userService.getUserByUsername(taskRequest.assignee());
         final var task = taskService.addTask(taskRequest, issue, assignee);
-        cache.evictIfPresent("tasks" + issueId);
-        LOG.debug(CACHE_EVICTED_MSG, issueId);
+        cache.evictIfPresent(TASKS_CACHE_KEY+ issueId);
+        LOG.trace(CACHE_EVICTED_MSG, issueId);
         updateNotificationService.notifyTaskListUpdate(issueId);
         return TaskResponse.fromTask(task);
     }
 
     public TaskResponse updateTask(final Long id, final TaskRequest taskRequest) {
-        LOG.info("Updating task with ID: {} and request: {}", id, taskRequest);
+        LOG.debug("Updating task with ID: '{}' and request: {}", id, taskRequest);
         final var assignee = userService.getUserByUsername(taskRequest.assignee());
         final var task = taskService.updateTask(id, taskRequest, assignee);
-        cache.evictIfPresent("tasks" + task.getIssue().getId());
-        LOG.debug(CACHE_EVICTED_MSG, task.getIssue().getId());
+        cache.evictIfPresent(TASKS_CACHE_KEY + task.getIssue().getId());
+        LOG.trace(CACHE_EVICTED_MSG, task.getIssue().getId());
         updateNotificationService.notifyTaskListUpdate(task.getIssue().getId());
         return TaskResponse.fromTask(task);
     }
 
     public TaskResponse moveTask(final MoveTaskRequest moveTaskRequest) {
-        LOG.info("Moving task with ID: {} to status: {}", moveTaskRequest.taskId(), moveTaskRequest.status());
+        LOG.debug("Moving task with ID: '{}' to status: {}", moveTaskRequest.taskId(), moveTaskRequest.status());
         final var task = taskService.moveTask(moveTaskRequest.taskId(), moveTaskRequest.status());
-        cache.evictIfPresent("tasks" + task.getIssue().getId());
-        LOG.debug(CACHE_EVICTED_MSG, task.getIssue().getId());
+        cache.evictIfPresent(TASKS_CACHE_KEY + task.getIssue().getId());
+        LOG.trace(CACHE_EVICTED_MSG, task.getIssue().getId());
         updateNotificationService.notifyTaskListUpdate(task.getIssue().getId());
         return TaskResponse.fromTask(task);
     }

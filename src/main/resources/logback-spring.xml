@@ -19,11 +19,7 @@
         </encoder>
     </appender>
 
-    <logger name="com.kajtekh.jirabackend.facade.TaskFacade" level="DEBUG" additivity="true">
-        <appender-ref ref="LOGSTASH" />
-    </logger>
-
-    <logger name="com.kajtekh.jirabackend.service.UpdateNotificationService" level="DEBUG" additivity="true">
+    <logger name="com.kajtekh.jirabackend" level="TRACE" additivity="true">
         <appender-ref ref="LOGSTASH" />
     </logger>
 

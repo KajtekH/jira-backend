@@ -6,4 +6,5 @@ public record TaskListResponse(List<TaskResponse> openTasks,
                                List<TaskResponse> inProgressTasks,
                                List<TaskResponse> closedTasks,
                                List<TaskResponse> abandonedTasks) {
+
 }

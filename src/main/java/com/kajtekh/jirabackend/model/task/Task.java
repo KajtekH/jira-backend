@@ -54,4 +54,18 @@ public class Task {
     @JoinColumn(name = "assignee_id")
     private User assignee;
 
+    @Override
+    public String toString() {
+            return "Task{" +
+                    " name='" + name + '\'' +
+                    ", status=" + status +
+                    ", priority=" + priority +
+                    ", description='" + description + '\'' +
+                    ", createdAt=" + createdAt +
+                    ", updatedAt=" + updatedAt +
+                    ", taskType=" + taskType.getName() +
+                    ", issue=" + issue.getName() +
+                    ", assignee=" + assignee.getUsername() +
+                    '}';
+    }
 }

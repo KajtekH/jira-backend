@@ -7,6 +7,8 @@ import com.kajtekh.jirabackend.model.issue.dto.IssueResponse;
 import com.kajtekh.jirabackend.model.request.Request;
 import com.kajtekh.jirabackend.model.user.User;
 import com.kajtekh.jirabackend.repository.IssueRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,14 +23,17 @@ import static java.time.temporal.ChronoUnit.MINUTES;
 
 @Service
 public class IssueService {
+    private static final Logger LOG = LoggerFactory.getLogger(IssueService.class);
 
     private final IssueRepository issueRepository;
-
 
     public IssueService(final IssueRepository issueRepository) {
         this.issueRepository = issueRepository;
     }
 
+
+
+    //TODO fix missing IssueType
     @Transactional
     public Issue addIssue(final IssueRequest issueRequest, final User productManager, final Request request) {
         final var issue = new Issue();
@@ -38,6 +43,7 @@ public class IssueService {
         issue.setStatus(OPEN);
         issue.setProductManager(productManager);
         issue.setRequest(request);
+        LOG.info("Issue added successfully: {}", issue);
         return issueRepository.save(issue);
     }
 
@@ -64,6 +70,8 @@ public class IssueService {
         if (status.equals(CLOSED)) {
             issue.setCloseDate(LocalDateTime.now().truncatedTo(MINUTES));
         }
-        return issueRepository.save(issue);
+        issueRepository.save(issue);
+        LOG.info("Issue with ID: {} updated to status: {}", id, status);
+        return issue;
     }
 }

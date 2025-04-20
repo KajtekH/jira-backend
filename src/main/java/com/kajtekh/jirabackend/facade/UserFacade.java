@@ -5,6 +5,8 @@ import com.kajtekh.jirabackend.model.user.dto.UserResponse;
 import com.kajtekh.jirabackend.model.user.dto.UserUpdateRequest;
 import com.kajtekh.jirabackend.service.UpdateNotificationService;
 import com.kajtekh.jirabackend.service.UserService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.cache.Cache;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
@@ -13,7 +15,9 @@ import java.util.List;
 
 @Service
 public class UserFacade {
-
+    private static final Logger LOG = LoggerFactory.getLogger(UserFacade.class);
+    private static final String CACHE_EVICTED_MSG = "Cache evicted for key: users";
+    private static final String USERS_CACHE_KEY = "users";
     private final UserService userService;
     private final UpdateNotificationService updateNotificationService;
     private final Cache cache;
@@ -26,33 +30,40 @@ public class UserFacade {
 
     @Cacheable(value = "data", key = "'users'")
     public List<UserResponse> getAllUsers() {
+        LOG.debug("Fetching all users");
         return userService.getAllUsers().stream()
                 .map(UserResponse::from)
                 .toList();
     }
 
     public void updateUserRole(final Long id, final Role role) {
+        LOG.debug("Updating user with ID: '{}' to role: '{}'", id, role);
         final var user = userService.updateUserRole(id, role);
         final var username = user.getUsername();
-        cache.evictIfPresent("users");
+        cache.evictIfPresent(USERS_CACHE_KEY);
         cache.put(username, UserResponse.from(user));
+        LOG.trace(CACHE_EVICTED_MSG);
         updateNotificationService.notifyUserListUpdate();
     }
 
     public void activateUser(final Long id, final boolean active) {
+        LOG.debug("Activating user with ID: '{}'", id);
         final var user = userService.changeActive(id, active);
         final var username = user.getUsername();
-        cache.evictIfPresent("users");
+        cache.evictIfPresent(USERS_CACHE_KEY);
         cache.put(username, UserResponse.from(user));
+        LOG.trace(CACHE_EVICTED_MSG);
         updateNotificationService.notifyUserListUpdate();
     }
 
     public UserResponse updateUser(final Long id, final UserUpdateRequest userUpdateRequest) {
+        LOG.debug("Updating user with ID: '{}'", id);
         final var user = userService.getUserById(id);
         final var updatedUser = userService.updateUser(user, userUpdateRequest);
         final var username = updatedUser.getUsername();
-        cache.evictIfPresent("users");
+        cache.evictIfPresent(USERS_CACHE_KEY);
         cache.put(username, UserResponse.from(updatedUser));
+        LOG.trace(CACHE_EVICTED_MSG);
         updateNotificationService.notifyUserListUpdate();
         return UserResponse.from(updatedUser);
     }

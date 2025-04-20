@@ -47,25 +47,26 @@ public class TaskService {
                     task.setPriority(taskRequest.priority());
                 },
                 () -> {
-                    LOG.warn("Task type not found: {}", taskRequest.type());
+                    LOG.warn("Task type not found: '{}'", taskRequest.type());
                     throw new IllegalArgumentException("Task type not found");
                 }
         );
-        LOG.debug("Task added successfully: {}", task.getName());
-        return taskRepository.save(task);
+        taskRepository.save(task);
+        LOG.info("Task added successfully: '{}'", task);
+        return task;
     }
 
     @Transactional
     public Task moveTask(final Long id, final Status taskStatus) {
         final var task = taskRepository.findById(id).orElseThrow(() -> {
-            LOG.warn("Task not found with ID: {}", id);
+            LOG.warn("Task with ID: '{}' not found ", id);
             return new IllegalArgumentException("Task not found");
         });
         final var oldStatus = task.getStatus();
         task.setStatus(taskStatus);
         task.setUpdatedAt(LocalDateTime.now().truncatedTo(MINUTES));
         taskRepository.save(task);
-        LOG.debug("Task with ID: {} moved from {} to {}", id, oldStatus, taskStatus);
+        LOG.info("Task with ID '{}' moved from '{}' to '{}'", id, oldStatus, taskStatus);
         return task;
     }
 
@@ -84,7 +85,7 @@ public class TaskService {
         final var abandonedTasks = tasks.stream()
                 .filter(task -> task.status().equals(Status.ABANDONED.name()))
                 .toList();
-        LOG.debug("Tasks fetched for issue ID: {} - Open: {}, In Progress: {}, Closed: {}, Abandoned: {}",
+        LOG.debug("Tasks fetched for issue ID: '{}' - Open: {}, In Progress: {}, Closed: {}, Abandoned: {}",
                 issueId, openTasks.size(), inProgressTasks.size(), closedTasks.size(), abandonedTasks.size());
         return new TaskListResponse(
                 openTasks,
@@ -97,11 +98,11 @@ public class TaskService {
     @Transactional
     public Task updateTask(final Long id, final TaskRequest taskRequest, final User assignee) {
         final var task = taskRepository.findById(id).orElseThrow(() -> {
-            LOG.warn("Task not found with ID: {}", id);
+            LOG.warn("Task with ID: '{}' not found", id);
             return new IllegalArgumentException("Task not found");
         });
         final var taskType = taskTypeRepository.findByName(taskRequest.type()).orElseThrow(() -> {
-            LOG.warn("Task type not found: {}", taskRequest.type());
+            LOG.warn("Task type not found: '{}'", taskRequest.type());
             return new IllegalArgumentException("Task type not found");
         });
         task.setName(taskRequest.name());
@@ -110,7 +111,7 @@ public class TaskService {
         task.setAssignee(assignee);
         task.setUpdatedAt(LocalDateTime.now().truncatedTo(MINUTES));
         taskRepository.save(task);
-        LOG.debug("Task with ID: {} updated successfully", id);
+        LOG.info("Task with ID '{}' updated successfully", id);
         return task;
     }
 }

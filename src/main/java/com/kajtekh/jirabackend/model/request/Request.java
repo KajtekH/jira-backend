@@ -20,7 +20,6 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
@@ -56,4 +55,17 @@ public class Request {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "account_manager_id")
     private User accountManager;
+
+    @Override
+    public String toString() {
+        return "Request{" +
+                "name='" + name + '\'' +
+                ", status=" + status +
+                ", requestType=" + requestType +
+                ", description='" + description + '\'' +
+                ", openDate=" + openDate +
+                ", product=" + product.getName() +
+                ", accountManager=" + accountManager.getUsername() +
+                '}';
+    }
 }

@@ -9,6 +9,7 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.NonNull;
+import org.slf4j.MDC;
 import org.springframework.cache.Cache;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -57,7 +58,13 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             filterChain.doFilter(request, response);
             return;
         }
-        filterChain.doFilter(request, response);
+        MDC.put("User", jwtService.extractUsername(jwt));
+        try {
+            filterChain.doFilter(request, response);
+        } finally {
+            MDC.clear();
+        }
+
     }
 
     private String extractJwtFromCookie(final HttpServletRequest request) {

@@ -9,7 +9,6 @@ import com.kajtekh.jirabackend.model.user.User;
 import com.kajtekh.jirabackend.repository.RequestRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,7 +20,7 @@ import static com.kajtekh.jirabackend.model.Status.CLOSED;
 import static com.kajtekh.jirabackend.model.Status.IN_PROGRESS;
 import static com.kajtekh.jirabackend.model.Status.OPEN;
 import static java.time.temporal.ChronoUnit.MINUTES;
-import static java.util.stream.Collectors.toList;
+
 
 @Service
 public class RequestService {
@@ -38,24 +37,16 @@ public class RequestService {
     public List<RequestResponse> getAllRequests(final Long productId) {
         return requestRepository.findAllByProductId(productId).stream()
                 .sorted((request1, request2) -> {
-            final List<Status> order = List.of(OPEN,IN_PROGRESS, CLOSED, ABANDONED);
-            LOG.info("Sorted list {}", order);
-            return Integer.compare(order.indexOf(request1.getStatus()), order.indexOf(request2.getStatus()));
-        })
+                    final List<Status> order = List.of(OPEN, IN_PROGRESS, CLOSED, ABANDONED);
+                    return Integer.compare(order.indexOf(request1.getStatus()), order.indexOf(request2.getStatus()));
+                })
                 .map(RequestResponse::fromRequest)
-                .collect(toList());
+                .toList();
     }
 
     @Transactional(readOnly = true)
     public Request getRequestById(final Long id) {
         return requestRepository.findById(id).orElse(null);
-    }
-
-    @Transactional(readOnly = true)
-    public RequestResponse getRequestResponseById(final Long id) {
-        return requestRepository.findById(id)
-                .map(RequestResponse::fromRequest)
-                .orElse(null);
     }
 
     @Transactional
@@ -68,14 +59,19 @@ public class RequestService {
         request.setStatus(OPEN);
         request.setProduct(product);
         request.setOpenDate(LocalDateTime.now().truncatedTo(MINUTES));
-        return requestRepository.save(request);
+        requestRepository.save(request);
+        LOG.info("Request added successfully: '{}'", request);
+        return request;
     }
 
     @Transactional
     public Request updateStatus(final Long id, final Status status) {
         final var request = requestRepository.findById(id).orElseThrow();
+        final var oldStatus = request.getStatus();
         request.setStatus(status);
-        return requestRepository.save(request);
+        requestRepository.save(request);
+        LOG.info("Status for request with ID  '{}' updated from '{}' to '{}'", id, oldStatus, status);
+        return request;
     }
 }
 

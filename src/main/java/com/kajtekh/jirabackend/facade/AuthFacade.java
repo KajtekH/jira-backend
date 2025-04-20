@@ -25,6 +25,7 @@ import static com.kajtekh.jirabackend.security.TokenCookieBuilder.REFRESH_TOKEN_
 
 @Service
 public class AuthFacade {
+    private static final Logger LOG = LoggerFactory.getLogger(AuthFacade.class);
 
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
@@ -40,12 +41,7 @@ public class AuthFacade {
         this.cache = cache;
     }
 
-    private static final Logger logger = LoggerFactory.getLogger(AuthFacade.class);
-
-
     public AuthenticationResponse register(final RegisterRequest request) {
-        logger.info("Register method called with request: {}", request);
-
         final var user = User.builder()
                 .username(request.username())
                 .email(request.email())
@@ -56,6 +52,7 @@ public class AuthFacade {
                 .isActive(true)
                 .build();
         userService.save(user);
+        LOG.info("User registered successfully: {}", user.getUsername());
         final var accessToken = jwtService.generateToken(user);
         final var refreshToken = jwtService.generateRefreshToken(user);
         return new AuthenticationResponse(accessToken, refreshToken);
@@ -72,6 +69,7 @@ public class AuthFacade {
         final var accessToken = jwtService.generateToken(user);
         final var refreshToken = jwtService.generateRefreshToken(user);
         jwtService.storeRefreshToken(user.getUsername(), refreshToken);
+        LOG.info("User logged in successfully: {}", user.getUsername());
         return new AuthenticationResponse(accessToken, refreshToken);
     }
 
@@ -120,6 +118,7 @@ public class AuthFacade {
         final var username = jwtService.extractUsername(refreshToken);
         cache.evict(username);
         jwtService.revokeRefreshToken(username);
+        LOG.info("User logged out successfully: {}", username);
     }
 
     public RefreshResponse getExp(final String token) {

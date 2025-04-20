@@ -20,7 +20,6 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
@@ -61,4 +60,18 @@ public class Issue {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "product_manager_id")
     private User productManager;
+
+    @Override
+    public String toString() {
+        return "Issue{" +
+                "name='" + name + '\'' +
+                ", status=" + status +
+                ", description='" + description + '\'' +
+                ", openDate=" + openDate +
+                ", closeDate=" + closeDate +
+                ", issueType=" + issueType.getName() +
+                ", request=" + request.getName() +
+                ", productManager=" + productManager.getUsername() +
+                '}';
+    }
 }

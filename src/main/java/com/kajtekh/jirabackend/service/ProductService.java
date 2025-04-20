@@ -5,6 +5,8 @@ import com.kajtekh.jirabackend.model.product.dto.ProductRequest;
 import com.kajtekh.jirabackend.model.request.RequestType;
 import com.kajtekh.jirabackend.model.user.User;
 import com.kajtekh.jirabackend.repository.ProductRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -15,7 +17,8 @@ import static java.time.temporal.ChronoUnit.MINUTES;
 
 @Service
 public class ProductService {
-
+    private static final Logger LOG = LoggerFactory.getLogger(ProductService.class);
+    private static final String VERSION_PATTERN = "%d.%d.%d";
     private final ProductRepository productRepository;
 
     public ProductService(final ProductRepository productRepository) {
@@ -34,7 +37,9 @@ public class ProductService {
         product.setDescription(productRequest.description());
         product.setOwner(owner);
         product.setVersion("0.0.0");
-        return productRepository.save(product);
+        productRepository.save(product);
+        LOG.info("Product added successfully: {}", product);
+        return product;
     }
 
     @Transactional(readOnly = true)
@@ -44,16 +49,19 @@ public class ProductService {
 
     @Transactional
     public void bumpVersion(final Product product, final RequestType requestType) {
-        final var version = product.getVersion().split("\\.");
-        final var major = Integer.parseInt(version[0]);
-        final var minor = Integer.parseInt(version[1]);
-        final var patch = Integer.parseInt(version[2]);
+        final var previousVersion = product.getVersion();
+        final var versionArr = previousVersion.split("\\.");
+        final var major = Integer.parseInt(versionArr[0]);
+        final var minor = Integer.parseInt(versionArr[1]);
+        final var patch = Integer.parseInt(versionArr[2]);
         switch (requestType) {
-            case MAJOR -> product.setVersion(String.format("%d.%d.%d", major + 1, 0, 0));
-            case MINOR -> product.setVersion(String.format("%d.%d.%d", major, minor + 1, 0));
-            case PATCH -> product.setVersion(String.format("%d.%d.%d", major, minor, patch + 1));
+            case MAJOR -> product.setVersion(String.format(VERSION_PATTERN, major + 1, 0, 0));
+            case MINOR -> product.setVersion(String.format(VERSION_PATTERN, major, minor + 1, 0));
+            case PATCH -> product.setVersion(String.format(VERSION_PATTERN, major, minor, patch + 1));
         }
         product.setReleaseDate(LocalDateTime.now().truncatedTo(MINUTES));
         productRepository.save(product);
+        LOG.info("Product version for product with ID '{}' bumped from '{}' to '{}'",
+                product.getId(), previousVersion, product.getVersion());
     }
 }
