@@ -15,10 +15,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
 import static java.time.temporal.ChronoUnit.MINUTES;
-import static org.springframework.transaction.annotation.Isolation.SERIALIZABLE;
+
 
 @Service
 public class TaskService {
@@ -30,12 +29,6 @@ public class TaskService {
     public TaskService(final TaskRepository taskRepository, final TaskTypeRepository taskTypeRepository) {
         this.taskRepository = taskRepository;
         this.taskTypeRepository = taskTypeRepository;
-    }
-
-    @Transactional(readOnly = true)
-    public List<TaskResponse> getAllTasks() {
-        LOG.info("Fetching all tasks");
-        return taskRepository.findAll().stream().map(TaskResponse::fromTask).toList();
     }
 
     @Transactional
@@ -76,19 +69,6 @@ public class TaskService {
         taskRepository.save(task);
         LOG.info("Task with ID: {} moved from {} to {}", id, oldStatus, taskStatus);
         return task;
-    }
-
-    @Transactional
-    public void deleteTask(final Long id) {
-        LOG.info("Deleting task with ID: {}", id);
-        taskRepository.deleteById(id);
-        LOG.info("Task with ID: {} deleted successfully", id);
-    }
-
-    @Transactional(readOnly = true)
-    public List<TaskResponse> getTasksByStatus(final Status status, final Long issueId) {
-        LOG.info("Fetching tasks with status: {} for issue ID: {}", status, issueId);
-        return taskRepository.findAllByStatusAndIssueId(status, issueId).stream().map(TaskResponse::fromTask).toList();
     }
 
     @Transactional(readOnly = true)

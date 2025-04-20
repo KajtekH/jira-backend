@@ -4,10 +4,6 @@ import com.kajtekh.jirabackend.facade.IssueFacade;
 import com.kajtekh.jirabackend.model.Status;
 import com.kajtekh.jirabackend.model.issue.dto.IssueRequest;
 import com.kajtekh.jirabackend.model.issue.dto.IssueResponse;
-import com.kajtekh.jirabackend.service.IssueService;
-import com.kajtekh.jirabackend.service.RequestService;
-import com.kajtekh.jirabackend.service.UpdateNotificationService;
-import com.kajtekh.jirabackend.service.UserService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -20,7 +16,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
-import static com.kajtekh.jirabackend.model.issue.dto.IssueResponse.fromIssue;
 import static org.springframework.http.HttpStatus.CREATED;
 
 @RestController

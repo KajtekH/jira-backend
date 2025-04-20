@@ -6,7 +6,6 @@ import com.kajtekh.jirabackend.model.auth.RefreshResponse;
 import com.kajtekh.jirabackend.model.auth.RegisterRequest;
 import com.kajtekh.jirabackend.model.auth.TokenResponse;
 import com.kajtekh.jirabackend.model.user.User;
-import com.kajtekh.jirabackend.repository.UserRepository;
 import com.kajtekh.jirabackend.security.JwtService;
 import com.kajtekh.jirabackend.service.UserService;
 import jakarta.servlet.http.Cookie;

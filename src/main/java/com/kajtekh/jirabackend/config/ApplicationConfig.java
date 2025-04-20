@@ -1,7 +1,6 @@
 package com.kajtekh.jirabackend.config;
 
 import com.kajtekh.jirabackend.service.UserService;
-import org.springframework.cache.Cache;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -34,7 +33,7 @@ public class ApplicationConfig {
     }
 
     @Bean
-    public AuthenticationManager authenticationManager(final AuthenticationConfiguration config) throws Exception{
+    public AuthenticationManager authenticationManager(final AuthenticationConfiguration config) throws Exception {
         return config.getAuthenticationManager();
     }
 

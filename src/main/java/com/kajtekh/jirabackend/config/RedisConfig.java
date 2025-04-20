@@ -6,7 +6,6 @@ import com.fasterxml.jackson.databind.jsontype.BasicPolymorphicTypeValidator;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.fasterxml.jackson.module.paramnames.ParameterNamesModule;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.data.redis.RedisProperties;
 import org.springframework.cache.Cache;
@@ -18,17 +17,14 @@ import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.serializer.GenericJackson2JsonRedisSerializer;
-import org.springframework.data.redis.serializer.JdkSerializationRedisSerializer;
 import org.springframework.data.redis.serializer.RedisSerializationContext;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
 
-import java.time.Duration;
-
 @Configuration
 public class RedisConfig {
-    
+
     private final RedisProperties redisProperties;
-    
+
     public RedisConfig(final RedisProperties redisProperties) {
         this.redisProperties = redisProperties;
     }
@@ -44,6 +40,7 @@ public class RedisConfig {
         factory.afterPropertiesSet();
         return factory;
     }
+
     @Bean
     @Qualifier("cacheRedisConnectionFactory1")
     public RedisConnectionFactory cacheRedisConnectionFactory1() {

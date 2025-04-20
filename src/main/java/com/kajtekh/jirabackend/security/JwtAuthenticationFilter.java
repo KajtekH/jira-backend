@@ -12,7 +12,6 @@ import lombok.NonNull;
 import org.springframework.cache.Cache;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -44,7 +43,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         }
         try {
             final var userName = jwtService.extractUsername(jwt);
-            final var userDetails = (UserDetails) cache.get(userName, () -> userService.loadUserByUsername(userName));
+            final var userDetails =  cache.get(userName, () -> userService.loadUserByUsername(userName));
             if (userDetails == null) {
                 filterChain.doFilter(request, response);
                 return;

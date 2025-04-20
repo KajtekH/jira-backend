@@ -4,8 +4,6 @@ import com.kajtekh.jirabackend.facade.UserFacade;
 import com.kajtekh.jirabackend.model.user.Role;
 import com.kajtekh.jirabackend.model.user.dto.UserResponse;
 import com.kajtekh.jirabackend.model.user.dto.UserUpdateRequest;
-import com.kajtekh.jirabackend.service.UpdateNotificationService;
-import com.kajtekh.jirabackend.service.UserService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -48,7 +46,7 @@ public class UserController {
 
     @PutMapping("/{id}")
     public ResponseEntity<UserResponse> updateUser(@PathVariable final Long id, @RequestBody final UserUpdateRequest userUpdateRequest) {
-     final var updatedUser = userFacade.updateUser(id, userUpdateRequest);
+        final var updatedUser = userFacade.updateUser(id, userUpdateRequest);
         return ResponseEntity.ok(updatedUser);
     }
 
