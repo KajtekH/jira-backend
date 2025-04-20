@@ -12,6 +12,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.cache.Cache;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -33,6 +34,7 @@ public class TaskFacade {
     }
 
     @Cacheable(value = "data", key = "'tasks' + #issueId")
+    @Caching()
     public TaskListResponse getAllTasksByIssue(final Long issueId) {
         return taskService.getAllTasksByIssue(issueId);
     }

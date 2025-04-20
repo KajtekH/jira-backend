@@ -14,11 +14,15 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.cache.RedisCacheConfiguration;
 import org.springframework.data.redis.cache.RedisCacheManager;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
+import org.springframework.data.redis.connection.RedisPassword;
+import org.springframework.data.redis.connection.RedisStandaloneConfiguration;
 import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.serializer.GenericJackson2JsonRedisSerializer;
 import org.springframework.data.redis.serializer.RedisSerializationContext;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
+
+import java.time.Duration;
 
 @Configuration
 public class RedisConfig {
@@ -32,11 +36,13 @@ public class RedisConfig {
     @Bean
     @Qualifier("cacheRedisConnectionFactory0")
     public RedisConnectionFactory cacheRedisConnectionFactory0() {
-        final LettuceConnectionFactory factory = new LettuceConnectionFactory();
-        factory.setHostName(redisProperties.getHost());
-        factory.setPort(redisProperties.getPort());
-        factory.setDatabase(0);
-        factory.setPassword(redisProperties.getPassword());
+        final RedisStandaloneConfiguration config = new RedisStandaloneConfiguration();
+        config.setHostName(redisProperties.getHost());
+        config.setPort(redisProperties.getPort());
+        config.setDatabase(0);
+        config.setPassword(RedisPassword.of(redisProperties.getPassword()));
+
+        final LettuceConnectionFactory factory = new LettuceConnectionFactory(config);
         factory.afterPropertiesSet();
         return factory;
     }
@@ -44,11 +50,13 @@ public class RedisConfig {
     @Bean
     @Qualifier("cacheRedisConnectionFactory1")
     public RedisConnectionFactory cacheRedisConnectionFactory1() {
-        final LettuceConnectionFactory factory = new LettuceConnectionFactory();
-        factory.setHostName(redisProperties.getHost());
-        factory.setPort(redisProperties.getPort());
-        factory.setDatabase(1);
-        factory.setPassword(redisProperties.getPassword());
+        final RedisStandaloneConfiguration config = new RedisStandaloneConfiguration();
+        config.setHostName(redisProperties.getHost());
+        config.setPort(redisProperties.getPort());
+        config.setDatabase(1);
+        config.setPassword(RedisPassword.of(redisProperties.getPassword()));
+
+        final LettuceConnectionFactory factory = new LettuceConnectionFactory(config);
         factory.afterPropertiesSet();
         return factory;
     }
@@ -80,7 +88,8 @@ public class RedisConfig {
                 .serializeKeysWith(RedisSerializationContext.SerializationPair.fromSerializer(new StringRedisSerializer()))
                 .serializeValuesWith(RedisSerializationContext.SerializationPair.fromSerializer(
                         new GenericJackson2JsonRedisSerializer(objectMapper)
-                ));
+                ))
+                .entryTtl(Duration.ofMinutes(5));
 
         return RedisCacheManager.builder(connectionFactory)
                 .cacheDefaults(config)
