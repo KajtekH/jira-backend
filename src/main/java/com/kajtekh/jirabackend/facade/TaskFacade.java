@@ -46,7 +46,7 @@ public class TaskFacade {
     public TaskResponse addTask(final TaskRequest taskRequest, final Long issueId) {
         LOG.debug("Adding task for issue with ID: '{}' with request: {}", issueId, taskRequest);
         final var issue = issueService.getIssueById(issueId);
-        final var assignee = userService.getUserByUsername(taskRequest.assignee());
+        final var assignee = userService.getWorker(taskRequest.assignee());
         final var task = taskService.addTask(taskRequest, issue, assignee);
         cache.evictIfPresent(TASKS_CACHE_KEY+ issueId);
         LOG.trace(CACHE_EVICTED_MSG, issueId);
@@ -56,7 +56,7 @@ public class TaskFacade {
 
     public TaskResponse updateTask(final Long id, final TaskRequest taskRequest) {
         LOG.debug("Updating task with ID: '{}' and request: {}", id, taskRequest);
-        final var assignee = userService.getUserByUsername(taskRequest.assignee());
+        final var assignee = userService.getWorker(taskRequest.assignee());
         final var task = taskService.updateTask(id, taskRequest, assignee);
         cache.evictIfPresent(TASKS_CACHE_KEY + task.getIssue().getId());
         LOG.trace(CACHE_EVICTED_MSG, task.getIssue().getId());

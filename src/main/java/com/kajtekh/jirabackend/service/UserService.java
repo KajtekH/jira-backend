@@ -1,5 +1,7 @@
 package com.kajtekh.jirabackend.service;
 
+import com.kajtekh.jirabackend.exception.InsufficientRoleException;
+import com.kajtekh.jirabackend.exception.UserNotFoundException;
 import com.kajtekh.jirabackend.model.user.Role;
 import com.kajtekh.jirabackend.model.user.User;
 import com.kajtekh.jirabackend.model.user.dto.UserUpdateRequest;
@@ -18,7 +20,8 @@ import java.util.List;
 @Service
 public class UserService implements UserDetailsService {
     private static final Logger LOG = LoggerFactory.getLogger(UserService.class);
-    private static final String USERNAME_NOT_FOUND = "User with username '{}' not found";
+    private static final String USER_WITH_USERNAME_NOT_FOUND = "User with username '{}' not found";
+    private static final String USER_WITH_ID_NOT_FOUND = "User with ID '{}' not found";
     private static final String USER_NOT_FOUND = "User not found";
     private final UserRepository userRepository;
 
@@ -26,11 +29,52 @@ public class UserService implements UserDetailsService {
         this.userRepository = userRepository;
     }
 
-    public User getUserByUsername(final String username) {
-        return userRepository.findByUsername(username).orElseGet(() -> {
-            LOG.warn(USERNAME_NOT_FOUND, username);
-            throw new UsernameNotFoundException(USER_NOT_FOUND + username);
+    public User getWorker(final String username) {
+        final var user = userRepository.findByUsername(username).orElseThrow(() -> {
+            LOG.warn(USER_WITH_USERNAME_NOT_FOUND, username);
+            return new UserNotFoundException(USER_NOT_FOUND);
         });
+        if(user.getRole() != Role.WORKER) {
+            LOG.warn("User with username '{}' is not a worker", username);
+            throw new InsufficientRoleException("User is not a worker");
+        }
+        return user;
+    }
+
+    public User getProductManager(final String username) {
+        final var user = userRepository.findByUsername(username).orElseThrow(() -> {
+            LOG.warn(USER_WITH_USERNAME_NOT_FOUND, username);
+            return new UserNotFoundException(USER_NOT_FOUND);
+        });
+        if(user.getRole() != Role.PRODUCT_MANAGER) {
+            LOG.warn("User with username '{}' is not a product manager", username);
+            throw new InsufficientRoleException("User is not a product manager");
+        }
+        return user;
+    }
+
+    public User getAccountManager(final String username) {
+        final var user = userRepository.findByUsername(username).orElseThrow(() -> {
+            LOG.warn(USER_WITH_USERNAME_NOT_FOUND, username);
+            return new UserNotFoundException(USER_NOT_FOUND);
+        });
+        if(user.getRole() != Role.ACCOUNT_MANAGER) {
+            LOG.warn("User with username '{}' is not an account manager", username);
+            throw new InsufficientRoleException("User is not an account manager");
+        }
+        return user;
+    }
+
+    public User getOwner(final String username) {
+        final var user = userRepository.findByUsername(username).orElseThrow(() -> {
+            LOG.warn(USER_WITH_USERNAME_NOT_FOUND, username);
+            return new UserNotFoundException(USER_NOT_FOUND);
+        });
+        if(user.getRole() != Role.OWNER) {
+            LOG.warn("User with username '{}' is not an owner", username);
+            throw new InsufficientRoleException("User is not an owner");
+        }
+        return user;
     }
 
     @Transactional(readOnly = true)
@@ -41,23 +85,26 @@ public class UserService implements UserDetailsService {
     @Override
     @Transactional(readOnly = true)
     public UserDetails loadUserByUsername(final String username) throws UsernameNotFoundException {
-        return userRepository.findByUsernameOrEmail(username).orElseGet(() -> {
-            LOG.warn(USERNAME_NOT_FOUND, username);
-            throw new UsernameNotFoundException(USER_NOT_FOUND + username);
+        return userRepository.findByUsernameOrEmail(username).orElseThrow(() -> {
+            LOG.warn(USER_WITH_USERNAME_NOT_FOUND, username);
+            return new UserNotFoundException(USER_NOT_FOUND);
         });
     }
 
     @Transactional(readOnly = true)
     public User getUserByUsernameOrEmail(final String username) {
-        return userRepository.findByUsernameOrEmail(username).orElseGet(() -> {
-            LOG.warn(USERNAME_NOT_FOUND, username);
-            throw new UsernameNotFoundException(USER_NOT_FOUND + username);
+        return userRepository.findByUsernameOrEmail(username).orElseThrow(() -> {
+            LOG.warn(USER_WITH_USERNAME_NOT_FOUND, username);
+            return new UserNotFoundException(USER_NOT_FOUND);
         });
     }
 
     @Transactional
     public User updateUserRole(final Long id, final Role role) {
-        final User user = userRepository.findById(id).orElseThrow(() -> new UsernameNotFoundException(USER_NOT_FOUND));
+        final User user = userRepository.findById(id).orElseThrow(() -> {
+            LOG.warn(USER_WITH_ID_NOT_FOUND, id);
+            return new UserNotFoundException(USER_NOT_FOUND);
+        });
         user.setRole(role);
         userRepository.save(user);
         LOG.info("User role for user with ID '{}' updated to '{}'", id, role);
@@ -66,7 +113,10 @@ public class UserService implements UserDetailsService {
 
     @Transactional
     public User changeActive(final Long id, final boolean active) {
-        final User user = userRepository.findById(id).orElseThrow(() -> new UsernameNotFoundException(USER_NOT_FOUND));
+        final User user = userRepository.findById(id).orElseThrow(() -> {
+            LOG.warn(USER_WITH_ID_NOT_FOUND, id);
+            return new UserNotFoundException(USER_NOT_FOUND);
+        });
         user.setActive(active);
         userRepository.save(user);
         LOG.info("User with ID '{}' activated", id);
@@ -75,9 +125,9 @@ public class UserService implements UserDetailsService {
 
     @Transactional(readOnly = true)
     public User getUserById(final Long id) {
-        return userRepository.findById(id).orElseGet(() -> {
-            LOG.warn("User with ID '{}' not found", id);
-            throw new UsernameNotFoundException(USER_NOT_FOUND);
+        return userRepository.findById(id).orElseThrow(() -> {
+            LOG.warn(USER_WITH_ID_NOT_FOUND, id);
+            return new UserNotFoundException(USER_NOT_FOUND);
         });
     }
 

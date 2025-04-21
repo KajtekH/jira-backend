@@ -1,5 +1,6 @@
 package com.kajtekh.jirabackend.service;
 
+import com.kajtekh.jirabackend.exception.ProductNotFoundException;
 import com.kajtekh.jirabackend.model.product.Product;
 import com.kajtekh.jirabackend.model.product.dto.ProductRequest;
 import com.kajtekh.jirabackend.model.request.RequestType;
@@ -44,7 +45,10 @@ public class ProductService {
 
     @Transactional(readOnly = true)
     public Product getProductById(final Long id) {
-        return productRepository.findById(id).orElse(null);
+        return productRepository.findById(id).orElseThrow(() -> {
+            LOG.warn("Product with ID '{}' not found", id);
+            return new ProductNotFoundException("Product not found");
+        });
     }
 
     @Transactional

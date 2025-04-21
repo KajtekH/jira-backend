@@ -61,7 +61,7 @@ public class IssueFacade {
     public IssueResponse addIssue(final IssueRequest issueRequest, final Long requestId) {
         LOG.debug("Adding issue for requestId: {} with request: {}", requestId, issueRequest);
         final var request = requestService.getRequestById(requestId);
-        final var productManager = userService.getUserByUsername(issueRequest.productManager());
+        final var productManager = userService.getProductManager(issueRequest.productManager());
         final var issue = issueService.addIssue(issueRequest, productManager, request);
         cache.evictIfPresent("issues" + requestId);
         cache.put("issue" + issue.getId(), IssueResponse.fromIssue(issue));

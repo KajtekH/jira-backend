@@ -1,5 +1,6 @@
 package com.kajtekh.jirabackend.service;
 
+import com.kajtekh.jirabackend.exception.RequestNotFoundException;
 import com.kajtekh.jirabackend.model.Status;
 import com.kajtekh.jirabackend.model.product.Product;
 import com.kajtekh.jirabackend.model.request.Request;
@@ -32,7 +33,6 @@ public class RequestService {
         this.requestRepository = requestRepository;
     }
 
-
     @Transactional(readOnly = true)
     public List<RequestResponse> getAllRequests(final Long productId) {
         return requestRepository.findAllByProductId(productId).stream()
@@ -46,7 +46,10 @@ public class RequestService {
 
     @Transactional(readOnly = true)
     public Request getRequestById(final Long id) {
-        return requestRepository.findById(id).orElse(null);
+        return requestRepository.findById(id).orElseThrow(() -> {
+            LOG.warn("Request with ID '{}' not found", id);
+            return new RequestNotFoundException("Request not found");
+        });
     }
 
     @Transactional
@@ -66,7 +69,10 @@ public class RequestService {
 
     @Transactional
     public Request updateStatus(final Long id, final Status status) {
-        final var request = requestRepository.findById(id).orElseThrow();
+        final var request = requestRepository.findById(id).orElseThrow(() -> {
+            LOG.warn("Request with ID: '{}' not found ", id);
+            return new RequestNotFoundException("Request not found");
+        });
         final var oldStatus = request.getStatus();
         request.setStatus(status);
         requestRepository.save(request);

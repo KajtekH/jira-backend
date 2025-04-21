@@ -1,5 +1,7 @@
 package com.kajtekh.jirabackend.service;
 
+import com.kajtekh.jirabackend.exception.TaskNotFoundException;
+import com.kajtekh.jirabackend.exception.TaskTypeNotFoundException;
 import com.kajtekh.jirabackend.model.Status;
 import com.kajtekh.jirabackend.model.issue.Issue;
 import com.kajtekh.jirabackend.model.task.Task;
@@ -45,14 +47,14 @@ public class TaskService {
                     task.setCreatedAt(LocalDateTime.now().truncatedTo(MINUTES));
                     task.setUpdatedAt(LocalDateTime.now().truncatedTo(MINUTES));
                     task.setPriority(taskRequest.priority());
+                    taskRepository.save(task);
+                    LOG.info("Task added successfully: '{}'", task);
                 },
                 () -> {
                     LOG.warn("Task type not found: '{}'", taskRequest.type());
-                    throw new IllegalArgumentException("Task type not found");
+                    throw new TaskTypeNotFoundException("Task type not found");
                 }
         );
-        taskRepository.save(task);
-        LOG.info("Task added successfully: '{}'", task);
         return task;
     }
 
@@ -60,7 +62,7 @@ public class TaskService {
     public Task moveTask(final Long id, final Status taskStatus) {
         final var task = taskRepository.findById(id).orElseThrow(() -> {
             LOG.warn("Task with ID: '{}' not found ", id);
-            return new IllegalArgumentException("Task not found");
+            return new TaskNotFoundException("Task not found");
         });
         final var oldStatus = task.getStatus();
         task.setStatus(taskStatus);
@@ -99,11 +101,11 @@ public class TaskService {
     public Task updateTask(final Long id, final TaskRequest taskRequest, final User assignee) {
         final var task = taskRepository.findById(id).orElseThrow(() -> {
             LOG.warn("Task with ID: '{}' not found", id);
-            return new IllegalArgumentException("Task not found");
+            return new TaskNotFoundException("Task not found");
         });
         final var taskType = taskTypeRepository.findByName(taskRequest.type()).orElseThrow(() -> {
             LOG.warn("Task type not found: '{}'", taskRequest.type());
-            return new IllegalArgumentException("Task type not found");
+            return new TaskTypeNotFoundException("Task type not found");
         });
         task.setName(taskRequest.name());
         task.setDescription(taskRequest.description());

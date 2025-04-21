@@ -46,7 +46,7 @@ public class ProductFacade {
 
     public ProductResponse addProduct(final ProductRequest productRequest) {
         LOG.debug("Adding product with request: {}", productRequest);
-        final var owner = userService.getUserByUsername(productRequest.owner());
+        final var owner = userService.getOwner(productRequest.owner());
         final var product = productService.addProduct(productRequest, owner);
         cache.evictIfPresent("products");
         cache.put("product" + product.getId(), ProductResponse.fromProduct(product));

@@ -52,7 +52,7 @@ public class RequestFacade {
     public RequestResponse addRequest(final RequestRequest requestRequest, final Long productId) {
         LOG.debug("Adding request for product with ID: {} with request: {}", productId, requestRequest);
         final var product = productService.getProductById(productId);
-        final var accountManager = userService.getUserByUsername(requestRequest.accountManager());
+        final var accountManager = userService.getAccountManager(requestRequest.accountManager());
         final var request = requestService.addRequest(requestRequest, accountManager, product);
         cache.evictIfPresent("requests" + productId);
         cache.put("request" + request.getId(), RequestResponse.fromRequest(request));
