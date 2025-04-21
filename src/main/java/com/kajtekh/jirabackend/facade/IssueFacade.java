@@ -3,6 +3,7 @@ package com.kajtekh.jirabackend.facade;
 import com.kajtekh.jirabackend.model.Status;
 import com.kajtekh.jirabackend.model.issue.dto.IssueRequest;
 import com.kajtekh.jirabackend.model.issue.dto.IssueResponse;
+import com.kajtekh.jirabackend.model.user.User;
 import com.kajtekh.jirabackend.service.IssueService;
 import com.kajtekh.jirabackend.service.RequestService;
 import com.kajtekh.jirabackend.service.UpdateNotificationService;
@@ -11,6 +12,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.cache.Cache;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -70,4 +72,16 @@ public class IssueFacade {
         return IssueResponse.fromIssue(issue);
     }
 
+    public boolean isAssignedToRequest(final Long issueId, final Authentication authentication) {
+        final var issue = issueService.getIssueById(issueId);
+        final var request = issue.getRequest();
+        final var user = (User) authentication.getPrincipal();
+        return request.getAccountManager().getId().equals(user.getId());
+    }
+
+    public boolean isAssignedToIssue(final Long issueId, final Authentication authentication) {
+        final var issue = issueService.getIssueById(issueId);
+        final var user = (User) authentication.getPrincipal();
+        return issue.getProductManager().getId().equals(user.getId());
+    }
 }

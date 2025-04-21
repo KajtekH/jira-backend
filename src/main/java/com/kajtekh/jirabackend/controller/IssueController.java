@@ -41,14 +41,14 @@ public class IssueController {
     }
 
     @PatchMapping("/{id}/{status}")
-    @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_PRODUCT_MANAGER')")
+    @PreAuthorize("hasRole('ROLE_ADMIN') or (hasRole('ROLE_PRODUCT_MANAGER') and @issueFacade.isAssignedToIssue(#id, authentication))")
     public ResponseEntity<IssueResponse> updateStatus(@PathVariable final Long id, @PathVariable final Status status) {
         final var issueResponse = issueFacade.updateStatus(id, status);
         return ResponseEntity.ok(issueResponse);
     }
 
     @PostMapping("/{requestId}")
-    @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_ACCOUNT_MANAGER')")
+    @PreAuthorize("hasRole('ROLE_ADMIN') or (hasRole('ROLE_ACCOUNT_MANAGER')  and @issueFacade.isAssignedToRequest(#requestId, authentication))")
     public ResponseEntity<IssueResponse> addIssue(@RequestBody final IssueRequest issueRequest, @PathVariable final Long requestId) {
         final var issueResponse = issueFacade.addIssue(issueRequest, requestId);
         return ResponseEntity.status(CREATED).body(issueResponse);

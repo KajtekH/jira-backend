@@ -4,6 +4,7 @@ import com.kajtekh.jirabackend.model.task.dto.MoveTaskRequest;
 import com.kajtekh.jirabackend.model.task.dto.TaskListResponse;
 import com.kajtekh.jirabackend.model.task.dto.TaskRequest;
 import com.kajtekh.jirabackend.model.task.dto.TaskResponse;
+import com.kajtekh.jirabackend.model.user.User;
 import com.kajtekh.jirabackend.service.IssueService;
 import com.kajtekh.jirabackend.service.TaskService;
 import com.kajtekh.jirabackend.service.UpdateNotificationService;
@@ -13,6 +14,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.cache.Cache;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.cache.annotation.Caching;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -71,6 +73,25 @@ public class TaskFacade {
         LOG.trace(CACHE_EVICTED_MSG, task.getIssue().getId());
         updateNotificationService.notifyTaskListUpdate(task.getIssue().getId());
         return TaskResponse.fromTask(task);
+    }
+
+    public boolean  isAssignedToTask(final MoveTaskRequest moveTaskRequest, final Authentication authentication) {
+        final var task = taskService.getTaskById(moveTaskRequest.taskId());
+        final var user = (User) authentication.getPrincipal();
+        return task.getAssignee().getId().equals(user.getId());
+    }
+
+    public boolean isAssignedToIssue(final Long issueId, final Authentication authentication) {
+        final var issue = issueService.getIssueById(issueId);
+        final var user = (User) authentication.getPrincipal();
+        return issue.getProductManager().getId().equals(user.getId());
+    }
+
+    public boolean isIssueManager(final Long taskId, final Authentication authentication) {
+        final var task = taskService.getTaskById(taskId);
+        final var issue = task.getIssue();
+        final var user = (User) authentication.getPrincipal();
+        return issue.getProductManager().getId().equals(user.getId());
     }
 
 }

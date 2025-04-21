@@ -3,6 +3,7 @@ package com.kajtekh.jirabackend.facade;
 import com.kajtekh.jirabackend.model.Status;
 import com.kajtekh.jirabackend.model.request.dto.RequestRequest;
 import com.kajtekh.jirabackend.model.request.dto.RequestResponse;
+import com.kajtekh.jirabackend.model.user.User;
 import com.kajtekh.jirabackend.service.ProductService;
 import com.kajtekh.jirabackend.service.RequestService;
 import com.kajtekh.jirabackend.service.UpdateNotificationService;
@@ -11,6 +12,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.cache.Cache;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -73,5 +75,11 @@ public class RequestFacade {
         LOG.trace(CACHE_EVICTED_MSG, request.getProduct().getId());
         updateNotificationService.notifyRequestListUpdate(request.getProduct().getId());
         return RequestResponse.fromRequest(request);
+    }
+
+    public boolean isAssignedToRequest(final Long requestId, final Authentication authentication){
+        final var request = requestService.getRequestById(requestId);
+        final var user = (User) authentication.getPrincipal();
+        return request.getAccountManager().getId().equals(user.getId());
     }
 }

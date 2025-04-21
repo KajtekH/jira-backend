@@ -116,4 +116,12 @@ public class TaskService {
         LOG.info("Task with ID '{}' updated successfully", id);
         return task;
     }
+
+    @Transactional(readOnly = true)
+    public Task  getTaskById(final Long taskId) {
+        return taskRepository.findById(taskId).orElseThrow(() -> {
+            LOG.warn("Task with ID: '{}' not found ", taskId);
+            return new TaskNotFoundException("Task not found");
+        });
+    }
 }

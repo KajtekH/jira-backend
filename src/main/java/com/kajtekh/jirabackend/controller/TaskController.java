@@ -34,21 +34,21 @@ public class TaskController {
     }
 
     @PostMapping("/{issueId}")
-    @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_PRODUCT_MANAGER')")
+    @PreAuthorize("hasRole('ROLE_ADMIN') or (hasRole('ROLE_PRODUCT_MANAGER') and @taskFacade.isAssignedToIssue(#issueId, authentication))")
     public ResponseEntity<TaskResponse> addTask(@PathVariable final Long issueId, @RequestBody final TaskRequest taskRequest) {
         final var taskResponse = taskFacade.addTask(taskRequest, issueId);
         return ResponseEntity.status(CREATED).body(taskResponse);
     }
 
     @PutMapping("/{id}")
-    @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_PRODUCT_MANAGER')")
+    @PreAuthorize("hasRole('ROLE_ADMIN') or (hasRole('ROLE_PRODUCT_MANAGER') and @taskFacade.isIssueManager(#id, authentication))")
     public ResponseEntity<TaskResponse> updateTask(@PathVariable final Long id, @RequestBody final TaskRequest taskRequest) {
         final var taskResponse = taskFacade.updateTask(id, taskRequest);
         return ResponseEntity.ok(taskResponse);
     }
 
     @PatchMapping()
-    @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_WORKER')")
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN' ) or (hasRole('ROLE_WORKER') and @taskFacade.isAssignedToTask(#moveTaskRequest, authentication))")
     public ResponseEntity<TaskResponse> moveTask(@RequestBody final MoveTaskRequest moveTaskRequest) {
         final var taskResponse = taskFacade.moveTask(moveTaskRequest);
         return ResponseEntity.ok(taskResponse);
