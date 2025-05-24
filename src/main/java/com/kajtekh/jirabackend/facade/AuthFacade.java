@@ -62,7 +62,7 @@ public class AuthFacade {
         authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(request.email(), request.password())
         );
-        final var user = cache.get(request.email(), () -> userService.getUserByUsernameOrEmail(request.email()));
+        final var user = userService.getUserByUsernameOrEmail(request.email());
         if (user == null) {
             throw new RuntimeException("User not found");
         }
@@ -89,7 +89,7 @@ public class AuthFacade {
             throw new RuntimeException("Invalid refresh token");
         }
 
-        final var user = cache.get(username, () -> userService.getUserByUsernameOrEmail(username));
+        final var user = userService.getUserByUsernameOrEmail(username);
         if (user == null) {
             throw new RuntimeException("User not found");
         }

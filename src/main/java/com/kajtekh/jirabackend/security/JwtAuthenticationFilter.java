@@ -10,7 +10,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.NonNull;
 import org.slf4j.MDC;
-import org.springframework.cache.Cache;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
@@ -26,12 +25,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     public final JwtService jwtService;
     private final UserService userService;
-    private final Cache cache;
 
-    public JwtAuthenticationFilter(final JwtService jwtService, final UserService userService, final Cache cache) {
+    public JwtAuthenticationFilter(final JwtService jwtService, final UserService userService) {
         this.jwtService = jwtService;
         this.userService = userService;
-        this.cache = cache;
     }
 
     @Override
@@ -44,7 +41,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         }
         try {
             final var userName = jwtService.extractUsername(jwt);
-            final var userDetails =  cache.get(userName, () -> userService.loadUserByUsername(userName));
+            final var userDetails =  userService.loadUserByUsername(userName);
             if (userDetails == null) {
                 filterChain.doFilter(request, response);
                 return;

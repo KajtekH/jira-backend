@@ -112,14 +112,18 @@ public class UserService implements UserDetailsService {
     }
 
     @Transactional
-    public User changeActive(final Long id, final boolean active) {
+    public User changeActivation(final Long id, final boolean active) {
         final User user = userRepository.findById(id).orElseThrow(() -> {
             LOG.warn(USER_WITH_ID_NOT_FOUND, id);
             return new UserNotFoundException(USER_NOT_FOUND);
         });
         user.setActive(active);
         userRepository.save(user);
-        LOG.info("User with ID '{}' activated", id);
+        if (active) {
+            LOG.info("User with ID '{}' activated", id);
+        } else {
+            LOG.info("User with ID '{}' deactivated", id);
+        }
         return user;
     }
 

@@ -32,15 +32,15 @@ public class UserController {
         return ResponseEntity.ok(userFacade.getAllUsers());
     }
 
-    @PatchMapping("/{id}/role")
-    public ResponseEntity<Void> updateUserRole(@PathVariable final Long id, @RequestBody final Role role) {
+    @PatchMapping("role/{id}/{role}")
+    public ResponseEntity<Void> updateUserRole(@PathVariable final Long id, @PathVariable final Role role) {
         userFacade.updateUserRole(id, role);
         return ResponseEntity.noContent().build();
     }
 
-    @PatchMapping("/{id}/active")
-    public ResponseEntity<Void> activateUser(@PathVariable final Long id, @RequestBody final boolean active) {
-        userFacade.activateUser(id, active);
+    @PatchMapping("activation/{id}/{active}")
+    public ResponseEntity<Void> changeActivation(@PathVariable final Long id, @PathVariable final boolean active) {
+        userFacade.changeActivation(id, active);
         return ResponseEntity.noContent().build();
     }
 

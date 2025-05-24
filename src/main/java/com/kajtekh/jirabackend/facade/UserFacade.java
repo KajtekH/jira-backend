@@ -46,9 +46,9 @@ public class UserFacade {
         updateNotificationService.notifyUserListUpdate();
     }
 
-    public void activateUser(final Long id, final boolean active) {
-        LOG.debug("Activating user with ID: '{}'", id);
-        final var user = userService.changeActive(id, active);
+    public void changeActivation(final Long id, final boolean active) {
+        LOG.debug("Changing activation for user with ID: '{}' to {}", id, active);
+        final var user = userService.changeActivation(id, active);
         final var username = user.getUsername();
         cache.evictIfPresent(USERS_CACHE_KEY);
         cache.put(username, UserResponse.from(user));
