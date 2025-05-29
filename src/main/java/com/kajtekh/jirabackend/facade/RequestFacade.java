@@ -63,9 +63,9 @@ public class RequestFacade {
         return RequestResponse.fromRequest(request);
     }
 
-  public RequestResponse updateStatus(final Long id, final Status status) {
+  public RequestResponse updateStatus(final Long id, final Status status, final String result) {
         LOG.debug("Updating status of request with ID: {}", id);
-        final var request = requestService.updateStatus(id, status);
+        final var request = requestService.updateStatus(id, status, result);
       if (status == CLOSED) {
           productService.bumpVersion(request.getProduct(), request.getRequestType());
           cache.evictIfPresent("products");

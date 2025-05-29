@@ -1,4 +1,4 @@
-package com.kajtekh.jirabackend.config;
+package com.kajtekh.jirabackend.util;
 
 import com.kajtekh.jirabackend.model.issue.Issue;
 import com.kajtekh.jirabackend.model.issue.IssueType;

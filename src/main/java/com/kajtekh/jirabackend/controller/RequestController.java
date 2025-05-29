@@ -47,8 +47,8 @@ public class RequestController {
 
     @PatchMapping("/{id}/{status}")
     @PreAuthorize("hasRole('ROLE_ADMIN') or (hasRole('ROLE_ACCOUNT_MANAGER') and @requestFacade.isAssignedToRequest(#id, authentication))")
-    public ResponseEntity<RequestResponse> updateStatus(@PathVariable final Long id, @PathVariable final Status status) {
-        final var requestResponse = requestFacade.updateStatus(id, status);
+    public ResponseEntity<RequestResponse> updateStatus(@PathVariable final Long id, @PathVariable final Status status, @RequestBody(required = false) final String result) {
+        final var requestResponse = requestFacade.updateStatus(id, status, result);
         return ResponseEntity.ok(requestResponse);
     }
 

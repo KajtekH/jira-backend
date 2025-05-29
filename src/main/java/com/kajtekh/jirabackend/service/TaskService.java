@@ -5,6 +5,7 @@ import com.kajtekh.jirabackend.exception.TaskTypeNotFoundException;
 import com.kajtekh.jirabackend.model.Status;
 import com.kajtekh.jirabackend.model.issue.Issue;
 import com.kajtekh.jirabackend.model.task.Task;
+import com.kajtekh.jirabackend.model.task.dto.MoveTaskRequest;
 import com.kajtekh.jirabackend.model.task.dto.TaskListResponse;
 import com.kajtekh.jirabackend.model.task.dto.TaskRequest;
 import com.kajtekh.jirabackend.model.task.dto.TaskResponse;
@@ -59,16 +60,18 @@ public class TaskService {
     }
 
     @Transactional
-    public Task moveTask(final Long id, final Status taskStatus) {
-        final var task = taskRepository.findById(id).orElseThrow(() -> {
-            LOG.warn("Task with ID: '{}' not found ", id);
+    public Task moveTask(final MoveTaskRequest moveTaskRequest) {
+        final var task = taskRepository.findById(moveTaskRequest.taskId()).orElseThrow(() -> {
+            LOG.warn("Task with ID: '{}' not found ", moveTaskRequest.taskId());
             return new TaskNotFoundException("Task not found");
         });
         final var oldStatus = task.getStatus();
-        task.setStatus(taskStatus);
+        task.setStatus(moveTaskRequest.status());
+        task.setResult(moveTaskRequest.result());
         task.setUpdatedAt(LocalDateTime.now().truncatedTo(MINUTES));
         taskRepository.save(task);
-        LOG.info("Task with ID '{}' moved from '{}' to '{}'", id, oldStatus, taskStatus);
+        LOG.info("Task with ID '{}' moved from '{}' to '{}'", moveTaskRequest.taskId(), oldStatus, moveTaskRequest.status());
+        LOG.debug("Task details after move: {}", task);
         return task;
     }
 

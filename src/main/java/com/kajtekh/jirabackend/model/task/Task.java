@@ -38,6 +38,9 @@ public class Task {
     @Column(columnDefinition = "TEXT")
     private String description;
 
+    @Column(columnDefinition = "TEXT")
+    private String result;
+
     @Column(columnDefinition = "TIMESTAMP(0)")
     private LocalDateTime createdAt;
 
@@ -66,6 +69,7 @@ public class Task {
                     ", taskType=" + taskType.getName() +
                     ", issue=" + issue.getName() +
                     ", assignee=" + assignee.getUsername() +
+                    ", result='" + result +
                     '}';
     }
 }

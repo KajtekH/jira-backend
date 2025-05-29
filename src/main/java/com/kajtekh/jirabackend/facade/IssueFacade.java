@@ -50,9 +50,9 @@ public class IssueFacade {
         return IssueResponse.fromIssue(issueService.getIssueById(id));
     }
 
-    public IssueResponse updateStatus(final Long id, final Status status) {
+    public IssueResponse updateStatus(final Long id, final Status status, final String result) {
         LOG.debug("Updating issue with ID: {} to status: {}", id, status);
-        final var issue = issueService.updateStatus(id, status);
+        final var issue = issueService.updateStatus(id, status, result);
         cache.evictIfPresent("issues" + issue.getRequest().getId());
         cache.put("issue" + issue.getId(), IssueResponse.fromIssue(issue));
         LOG.trace(CACHE_EVICTED_MSG, issue.getRequest().getId());

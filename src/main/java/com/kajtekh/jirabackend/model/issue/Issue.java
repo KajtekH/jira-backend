@@ -42,6 +42,9 @@ public class Issue {
     @Column(columnDefinition = "TEXT")
     private String description;
 
+    @Column(columnDefinition = "TEXT")
+    private String result;
+
     @Column(columnDefinition = "TIMESTAMP(0)")
     private LocalDateTime openDate;
 

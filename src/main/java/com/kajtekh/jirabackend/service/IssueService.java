@@ -79,7 +79,7 @@ public class IssueService {
     }
 
     @Transactional
-    public Issue updateStatus(final Long id, final Status status) {
+    public Issue updateStatus(final Long id, final Status status, final String result) {
         final var issue = issueRepository.findById(id).orElseThrow(() -> {
             LOG.warn("Issue with ID: '{}' not found ", id);
             return new IssueNotFoundException("Issue not found");
@@ -87,9 +87,10 @@ public class IssueService {
         issue.setStatus(status);
         if (status.equals(CLOSED)) {
             issue.setCloseDate(LocalDateTime.now().truncatedTo(MINUTES));
+            issue.setResult(result);
         }
         issueRepository.save(issue);
-        LOG.info("Issue with ID: {} updated to status: {}", id, status);
+        LOG.info("Issue with ID: {} updated to status: {} and result {}", id, status, result);
         return issue;
     }
 }

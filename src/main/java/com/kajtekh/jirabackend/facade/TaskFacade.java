@@ -68,7 +68,7 @@ public class TaskFacade {
 
     public TaskResponse moveTask(final MoveTaskRequest moveTaskRequest) {
         LOG.debug("Moving task with ID: '{}' to status: {}", moveTaskRequest.taskId(), moveTaskRequest.status());
-        final var task = taskService.moveTask(moveTaskRequest.taskId(), moveTaskRequest.status());
+        final var task = taskService.moveTask(moveTaskRequest);
         cache.evictIfPresent(TASKS_CACHE_KEY + task.getIssue().getId());
         LOG.trace(CACHE_EVICTED_MSG, task.getIssue().getId());
         updateNotificationService.notifyTaskListUpdate(task.getIssue().getId());

@@ -68,15 +68,17 @@ public class RequestService {
     }
 
     @Transactional
-    public Request updateStatus(final Long id, final Status status) {
+    public Request updateStatus(final Long id, final Status status, final String result) {
         final var request = requestRepository.findById(id).orElseThrow(() -> {
             LOG.warn("Request with ID: '{}' not found ", id);
             return new RequestNotFoundException("Request not found");
         });
         final var oldStatus = request.getStatus();
         request.setStatus(status);
+        request.setResult(result);
         requestRepository.save(request);
         LOG.info("Status for request with ID  '{}' updated from '{}' to '{}'", id, oldStatus, status);
+        LOG.debug("Request details: {}", request);
         return request;
     }
 }

@@ -42,8 +42,8 @@ public class IssueController {
 
     @PatchMapping("/{id}/{status}")
     @PreAuthorize("hasRole('ROLE_ADMIN') or (hasRole('ROLE_PRODUCT_MANAGER') and @issueFacade.isAssignedToIssue(#id, authentication))")
-    public ResponseEntity<IssueResponse> updateStatus(@PathVariable final Long id, @PathVariable final Status status) {
-        final var issueResponse = issueFacade.updateStatus(id, status);
+    public ResponseEntity<IssueResponse> updateStatus(@PathVariable final Long id, @PathVariable final Status status, @RequestBody(required = false) final String result) {
+        final var issueResponse = issueFacade.updateStatus(id, status, result);
         return ResponseEntity.ok(issueResponse);
     }
 
