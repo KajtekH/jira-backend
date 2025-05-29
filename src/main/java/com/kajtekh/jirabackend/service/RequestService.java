@@ -1,9 +1,11 @@
 package com.kajtekh.jirabackend.service;
 
 import com.kajtekh.jirabackend.exception.RequestNotFoundException;
+import com.kajtekh.jirabackend.exception.RequestTypeNotFoundException;
 import com.kajtekh.jirabackend.model.Status;
 import com.kajtekh.jirabackend.model.product.Product;
 import com.kajtekh.jirabackend.model.request.Request;
+import com.kajtekh.jirabackend.model.request.RequestType;
 import com.kajtekh.jirabackend.model.request.dto.RequestRequest;
 import com.kajtekh.jirabackend.model.request.dto.RequestResponse;
 import com.kajtekh.jirabackend.model.user.User;
@@ -57,11 +59,16 @@ public class RequestService {
         final var request = new Request();
         request.setName(requestRequest.name());
         request.setDescription(requestRequest.description());
-        request.setRequestType(requestRequest.requestType());
         request.setAccountManager(accountManager);
         request.setStatus(OPEN);
         request.setProduct(product);
         request.setOpenDate(LocalDateTime.now().truncatedTo(MINUTES));
+        try {
+            request.setRequestType(RequestType.valueOf(requestRequest.requestType().toUpperCase()));
+        } catch (final IllegalArgumentException e) {
+            LOG.warn("Invalid request type: '{}'. Defaulting to 'OTHER'", requestRequest.requestType());
+           throw new RequestTypeNotFoundException("Invalid request type: " + requestRequest.requestType());
+        }
         requestRepository.save(request);
         LOG.info("Request added successfully: '{}'", request);
         return request;

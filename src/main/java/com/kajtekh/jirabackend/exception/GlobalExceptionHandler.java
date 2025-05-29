@@ -1,5 +1,6 @@
 package com.kajtekh.jirabackend.exception;
 
+import jakarta.validation.ConstraintViolationException;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -28,6 +29,14 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     @ExceptionHandler(TabException.class)
     @ResponseBody
     public ResponseEntity<Object> handleTabException(final TabException exception) {
+        return ResponseEntity.status(BAD_REQUEST)
+                .contentType(APPLICATION_JSON)
+                .body(new ErrorResponse(exception.getMessage()));
+    }
+
+    @ExceptionHandler(ConstraintViolationException.class)
+    @ResponseBody
+    public ResponseEntity<Object> handleMethodArgumentNotValidException(final ConstraintViolationException exception) {
         return ResponseEntity.status(BAD_REQUEST)
                 .contentType(APPLICATION_JSON)
                 .body(new ErrorResponse(exception.getMessage()));

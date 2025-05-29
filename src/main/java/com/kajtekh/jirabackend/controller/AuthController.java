@@ -1,5 +1,7 @@
 package com.kajtekh.jirabackend.controller;
 
+import com.kajtekh.jirabackend.controller.validator.ValidLoginRequest;
+import com.kajtekh.jirabackend.controller.validator.ValidRegisterRequest;
 import com.kajtekh.jirabackend.model.auth.AuthenticationRequest;
 import com.kajtekh.jirabackend.model.auth.RefreshResponse;
 import com.kajtekh.jirabackend.model.auth.RegisterRequest;
@@ -8,6 +10,7 @@ import com.kajtekh.jirabackend.security.TokenCookieBuilder;
 import com.kajtekh.jirabackend.facade.AuthFacade;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -16,6 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 import static org.springframework.http.HttpHeaders.SET_COOKIE;
 
 @RestController
+@Validated
 @RequestMapping("/api/auth")
 public class AuthController {
     private final AuthFacade service;
@@ -27,7 +31,7 @@ public class AuthController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<Void> register(@RequestBody final RegisterRequest request) {
+    public ResponseEntity<Void> register(@ValidRegisterRequest @RequestBody final RegisterRequest request) {
         final var response = service.register(request);
         final var accessToken = tokenCookieBuilder.buildAccessTokenCookie(response.accessToken());
         return ResponseEntity.ok()
@@ -35,7 +39,7 @@ public class AuthController {
                 .build();
     }
     @PostMapping("/login")
-    public ResponseEntity<TokenResponse> login(@RequestBody final AuthenticationRequest request) {
+    public ResponseEntity<TokenResponse> login(@ValidLoginRequest @RequestBody final AuthenticationRequest request) {
         final var response = service.login(request);
         final var accessToken = tokenCookieBuilder.buildAccessTokenCookie(response.accessToken());
         final var refreshCookie = tokenCookieBuilder.buildRefreshTokenCookie(response.refreshToken());
