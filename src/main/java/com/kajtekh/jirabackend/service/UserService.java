@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 
 
 @Service
@@ -29,7 +30,11 @@ public class UserService implements UserDetailsService {
         this.userRepository = userRepository;
     }
 
-    public User getWorker(final String username) {
+    public Optional<User> getWorker(final String username) {
+        if (username == null || username.isBlank()) {
+            LOG.warn("Username is null or blank");
+            return Optional.empty();
+        }
         final var user = userRepository.findByUsername(username).orElseThrow(() -> {
             LOG.warn(USER_WITH_USERNAME_NOT_FOUND, username);
             return new UserNotFoundException(USER_NOT_FOUND);
@@ -38,7 +43,7 @@ public class UserService implements UserDetailsService {
             LOG.warn("User with username '{}' is not a worker", username);
             throw new InsufficientRoleException("User is not a worker");
         }
-        return user;
+        return Optional.of(user);
     }
 
     public User getProductManager(final String username) {

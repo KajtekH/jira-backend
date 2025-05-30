@@ -87,8 +87,8 @@ public class IssueService {
         issue.setStatus(status);
         if (status.equals(CLOSED)) {
             issue.setCloseDate(LocalDateTime.now().truncatedTo(MINUTES));
-            issue.setResult(result);
         }
+        issue.setResult(result);
         issueRepository.save(issue);
         LOG.info("Issue with ID: {} updated to status: {} and result {}", id, status, result);
         return issue;

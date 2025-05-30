@@ -18,6 +18,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.Optional;
 
 import static java.time.temporal.ChronoUnit.MINUTES;
 
@@ -35,7 +36,7 @@ public class TaskService {
     }
 
     @Transactional
-    public Task addTask(final TaskRequest taskRequest, final Issue issue, final User assignee) {
+    public Task addTask(final TaskRequest taskRequest, final Issue issue, final Optional<User> assignee) {
         final var task = new Task();
         taskTypeRepository.findByName(taskRequest.type()).ifPresentOrElse(
                 taskType -> {
@@ -43,7 +44,7 @@ public class TaskService {
                     task.setStatus(Status.OPEN);
                     task.setDescription(taskRequest.description());
                     task.setTaskType(taskType);
-                    task.setAssignee(assignee);
+                    assignee.ifPresent(task::setAssignee);
                     task.setIssue(issue);
                     task.setCreatedAt(LocalDateTime.now().truncatedTo(MINUTES));
                     task.setUpdatedAt(LocalDateTime.now().truncatedTo(MINUTES));
@@ -101,7 +102,7 @@ public class TaskService {
     }
 
     @Transactional
-    public Task updateTask(final Long id, final TaskRequest taskRequest, final User assignee) {
+    public Task updateTask(final Long id, final TaskRequest taskRequest, final Optional<User> assignee) {
         final var task = taskRepository.findById(id).orElseThrow(() -> {
             LOG.warn("Task with ID: '{}' not found", id);
             return new TaskNotFoundException("Task not found");
@@ -113,7 +114,7 @@ public class TaskService {
         task.setName(taskRequest.name());
         task.setDescription(taskRequest.description());
         task.setTaskType(taskType);
-        task.setAssignee(assignee);
+        assignee.ifPresent(task::setAssignee);
         task.setUpdatedAt(LocalDateTime.now().truncatedTo(MINUTES));
         taskRepository.save(task);
         LOG.info("Task with ID '{}' updated successfully", id);
