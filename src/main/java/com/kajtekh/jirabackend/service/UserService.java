@@ -155,4 +155,12 @@ public class UserService implements UserDetailsService {
     public void save(final User user) {
         userRepository.save(user);
     }
+
+    public List<User> getUsersByRole(final Role role) {
+        LOG.debug("Fetching users with role: '{}'", role);
+        return userRepository.findByRole(role).orElseThrow(() -> {
+            LOG.warn("No users found with role: '{}'", role);
+            return new UserNotFoundException("No users found with the specified role");
+        });
+    }
 }

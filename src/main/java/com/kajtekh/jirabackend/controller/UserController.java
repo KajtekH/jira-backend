@@ -18,7 +18,6 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/users")
-@PreAuthorize("hasRole('ROLE_ADMIN')")
 public class UserController {
 
     private final UserFacade userFacade;
@@ -32,19 +31,27 @@ public class UserController {
         return ResponseEntity.ok(userFacade.getAllUsers());
     }
 
+    @GetMapping("/{role}")
+    public ResponseEntity<List<String>> getUsersByRole(@PathVariable final Role role) {
+        return ResponseEntity.ok(userFacade.getUsersByRole(role));
+    }
+
     @PatchMapping("role/{id}/{role}")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<Void> updateUserRole(@PathVariable final Long id, @PathVariable final Role role) {
         userFacade.updateUserRole(id, role);
         return ResponseEntity.noContent().build();
     }
 
     @PatchMapping("activation/{id}/{active}")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<Void> changeActivation(@PathVariable final Long id, @PathVariable final boolean active) {
         userFacade.changeActivation(id, active);
         return ResponseEntity.noContent().build();
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<UserResponse> updateUser(@PathVariable final Long id, @RequestBody final UserUpdateRequest userUpdateRequest) {
         final var updatedUser = userFacade.updateUser(id, userUpdateRequest);
         return ResponseEntity.ok(updatedUser);

@@ -117,8 +117,8 @@ public class DataInitializer {
         final List<User> userList = new ArrayList<>();
         userList.add(User.builder()
                 .username("test_user")
-                .firstName("Jarosław")
-                .lastName("Kaczyński")
+                .firstName("Jan")
+                .lastName("Kowalski")
                 .email("test@gmail")
                 .role(USER)
                 .password(passwordEncoder.encode("test"))
@@ -126,8 +126,8 @@ public class DataInitializer {
                 .build());
         userList.add(User.builder()
                 .username("test_worker")
-                .firstName("Donald")
-                .lastName("Tusk")
+                .firstName("Michał")
+                .lastName("Nowak")
                 .email("test2@gmail")
                 .role(WORKER)
                 .password(passwordEncoder.encode("test"))
@@ -136,7 +136,7 @@ public class DataInitializer {
         userList.add(User.builder()
                 .username("test_product_manager")
                 .firstName("Sławomir")
-                .lastName("Mentzen")
+                .lastName("Nowakowski")
                 .email("test3@gmail")
                 .role(PRODUCT_MANAGER)
                 .password(passwordEncoder.encode("test"))
@@ -145,7 +145,7 @@ public class DataInitializer {
         userList.add(User.builder()
                 .username("test_account_manager")
                 .firstName("Adrian")
-                .lastName("Zandberg")
+                .lastName("Kowal")
                 .email("test4@gmail")
                 .role(ACCOUNT_MANAGER)
                 .password(passwordEncoder.encode("test"))
@@ -154,7 +154,7 @@ public class DataInitializer {
         userList.add(User.builder()
                 .username("test_owner")
                 .firstName("Janusz")
-                .lastName("Korwin-Mikke")
+                .lastName("Kowal")
                 .email("test5@gmail")
                 .role(OWNER)
                 .password(passwordEncoder.encode("test"))
@@ -264,17 +264,23 @@ public class DataInitializer {
 
     private List<Task> prepareTasks(final User user, final List<Issue> issues, final List<TaskType> taskTypes) {
         final List<Task> tasks = new ArrayList<>();
-        issues.forEach(issue -> taskTypes.forEach(taskType -> tasks.add(Task.builder()
-                .name("Test Task 1")
-                .description("Description for Test Task 1")
-                .issue(issue)
-                .assignee(user)
-                .taskType(taskType)
-                .status(OPEN)
-                .createdAt(now().truncatedTo(MINUTES))
-                .updatedAt(now().truncatedTo(MINUTES))
-                .priority(new Random().nextInt(1, 6))
-                .build())));
+        int counter = 1;
+        for (final Issue issue : issues) {
+            for (final TaskType taskType : taskTypes) {
+                tasks.add(Task.builder()
+                        .name("Test Task " + counter)
+                        .description("Description for Test Task " + counter)
+                        .issue(issue)
+                        .assignee(user)
+                        .taskType(taskType)
+                        .status(OPEN)
+                        .createdAt(now().truncatedTo(MINUTES))
+                        .updatedAt(now().truncatedTo(MINUTES))
+                        .priority(new Random().nextInt(1, 6))
+                        .build());
+                counter++;
+            }
+        }
         return tasks;
     }
 }

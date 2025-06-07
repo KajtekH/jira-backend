@@ -1,6 +1,7 @@
 package com.kajtekh.jirabackend.facade;
 
 import com.kajtekh.jirabackend.model.user.Role;
+import com.kajtekh.jirabackend.model.user.User;
 import com.kajtekh.jirabackend.model.user.dto.UserResponse;
 import com.kajtekh.jirabackend.model.user.dto.UserUpdateRequest;
 import com.kajtekh.jirabackend.service.UpdateNotificationService;
@@ -66,5 +67,12 @@ public class UserFacade {
         LOG.trace(CACHE_EVICTED_MSG);
         updateNotificationService.notifyUserListUpdate();
         return UserResponse.from(updatedUser);
+    }
+
+    public List<String> getUsersByRole(final Role role) {
+    LOG.debug("Fetching users with role: '{}'", role);
+    return userService.getUsersByRole(role).stream()
+                .map(User::getUsername)
+                .toList();
     }
 }
